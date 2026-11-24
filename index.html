@@ -2,119 +2,842 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Iqra's Productivity Matrix</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-  :root { --bg: #ffffff; --sidebar: #f8fafc; --border: #e2e8f0; --text: #0f172a; }
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; min-height: 100vh; }
+  :root {
+    --bg: #ffffff;
+    --sidebar: #f8fafc;
+    --surface: #ffffff;
+    --subtle: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #0f172a;
+    --accent-text: #ffffff;
+    --date-bg: #ffffff;
+  }
 
-  /* Collapsible Left Sidebar */
-  .sidebar { width: 310px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 20px 16px; transition: margin-left 0.25s ease; flex-shrink: 0; overflow-y: auto; max-height: 100vh; position: sticky; top: 0; }
+  /* Sticky Note Light Yellow Theme */
+  body[data-theme="yellow"] {
+    --bg: #fef9c3;
+    --sidebar: #fef08a;
+    --surface: #fefce8;
+    --subtle: #fde04766;
+    --border: #ca8a0455;
+    --text: #422006;
+    --muted: #854d0e;
+    --accent: #a16207;
+    --accent-text: #ffffff;
+    --date-bg: #fefce8;
+  }
+
+  /* Dark Mode Theme */
+  body[data-theme="dark"] {
+    --bg: #0b1120;
+    --sidebar: #111827;
+    --surface: #1e293b;
+    --subtle: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-text: #0f172a;
+    --date-bg: #111827;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+    min-height: 100dvh;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  /* Invisible left-edge swipe trigger on mobile */
+  .edge-swipe-zone { display: none; }
+  @media (max-width: 768px) {
+    .edge-swipe-zone {
+      display: block;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 22px;
+      z-index: 90;
+    }
+  }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 95;
+  }
+  .sidebar-backdrop.active { display: block; }
+
+  /* Scrollable & Rollable Left Sidebar */
+  .sidebar {
+    width: 310px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    padding: 16px 14px 48px;
+    transition: margin-left 0.25s ease, transform 0.25s ease, background 0.2s ease;
+    flex-shrink: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
   .sidebar.closed { margin-left: -310px; }
-  .side-sec { margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-  .side-sec h4 { margin: 0 0 10px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
-  .side-input { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; margin-bottom: 8px; background: #fff; }
-  .btn { width: 100%; padding: 7px 12px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; text-align: center; }
-  .btn:hover { background: #f1f5f9; }
-  .btn-primary { background: #0f172a; color: #fff; border-color: #0f172a; }
-  .btn-primary:hover { background: #1e293b; }
+
+  .sidebar-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-top-row span {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .side-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .side-box h4 {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+
+  .side-input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 15px;
+    margin-bottom: 8px;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .btn:hover:not(:disabled) { filter: brightness(0.96); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+  }
+
+  /* Collapsible Single-Heading Accordion Sections */
+  .acc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .acc-btn {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    padding: 11px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    text-align: left;
+  }
+  .acc-btn:hover { background: var(--subtle); }
+  .acc-arrow { font-size: 11px; color: var(--muted); transition: transform 0.2s; }
+  .acc-card.open .acc-arrow { transform: rotate(180deg); }
+  .acc-panel {
+    display: none;
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--border);
+  }
+  .acc-card.open .acc-panel { display: block; }
+
+  /* Original Dashboard Bars & Goal Progress Bars */
+  .bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 11px; }
+  .bar-label { width: 74px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; height: 10px; background: var(--subtle); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+  .bar-fill { height: 100%; background: #22c55e; transition: width 0.3s; }
+
+  /* Long Term Goals Sidebar List */
+  .goal-side-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 6px;
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 5px 7px;
+  }
+  .goal-name-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  .goal-name-input:focus {
+    background: var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .goal-open-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .goal-open-pill:hover { filter: brightness(0.95); }
+
+  /* 4-Tier Monthly Overview */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .month-nav button {
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 5px;
+    padding: 2px 8px;
+    cursor: pointer;
+  }
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 4px; }
+  .m-dow { font-size: 9px; font-weight: 700; text-align: center; color: var(--muted); }
+  .m-day {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--subtle);
+    color: var(--text);
+  }
+  .m-day.empty { background: transparent; }
+  .m-day.lvl-red { background: #ef4444; color: #ffffff; }
+  .m-day.lvl-orange { background: #f97316; color: #ffffff; }
+  .m-day.lvl-green-light { background: #4ade80; color: #052e16; }
+  .m-day.lvl-green-dark { background: #15803d; color: #ffffff; }
+
+  .m-legend {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9.5px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .m-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    margin-right: 2px;
+    vertical-align: middle;
+  }
+
+  /* Theme Selector inside Customize Matrix */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+  .theme-opt {
+    padding: 6px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+  }
+  .theme-opt.active {
+    outline: 2px solid var(--accent);
+    border-color: var(--accent);
+  }
+  .col-manage-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
 
   /* Main Area */
-  .main { flex: 1; padding: 24px 32px; overflow-x: auto; }
-  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 12px; }
-  .toggle-btn { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; font-weight: 600; }
-  .toggle-btn:hover { background: #f1f5f9; }
-  .format-tools { display: flex; gap: 6px; align-items: center; }
-  .format-tools button { padding: 5px 9px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; }
-  .format-tools button:hover { background: #f1f5f9; }
+  .main { flex: 1; padding: 20px 28px 72px; overflow-x: auto; min-width: 0; }
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .toggle-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .toggle-btn:hover:not(:disabled) { filter: brightness(0.96); }
+  .toggle-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-  .page-title { font-size: 28px; font-weight: 800; margin: 0 0 20px 0; outline: none; display: inline-block; padding: 2px 6px; border-radius: 6px; }
-  .page-title:focus { background: #f8fafc; box-shadow: 0 0 0 2px #cbd5e1; }
+  .format-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .format-tools button {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .format-tools button:hover { filter: brightness(0.96); }
+
+  /* Locked Non-Editable Main Title (Editable only inside Customize Matrix menu) */
+  .page-title {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 18px 0;
+    padding: 2px 4px;
+    user-select: none;
+  }
 
   /* Clean Matrix Table */
-  .table-wrap { border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; }
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow-x: auto;
+    background: var(--surface);
+  }
   table { width: 100%; border-collapse: collapse; }
-  th, td { border: 1px solid var(--border); padding: 10px 12px; vertical-align: top; min-width: 210px; }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    vertical-align: top;
+    min-width: 210px;
+    position: relative;
+  }
   th { font-size: 13px; font-weight: 700; text-align: left; }
-  .date-cell { min-width: 125px; width: 125px; font-weight: 600; font-size: 13px; background: #fff; }
-  .del-date { float: right; color: #94a3b8; cursor: pointer; font-size: 14px; border: none; background: none; padding: 0 4px; }
+
+  /* Theme-adapted cell overlay for Dark & Yellow themes */
+  body[data-theme="dark"] th,
+  body[data-theme="dark"] td.themed-cell,
+  body[data-theme="yellow"] th,
+  body[data-theme="yellow"] td.themed-cell {
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+  }
+
+  .date-cell {
+    min-width: 125px;
+    width: 125px;
+    font-weight: 700;
+    font-size: 13px;
+    background: var(--date-bg) !important;
+    color: var(--text) !important;
+    white-space: nowrap;
+  }
+  .del-date {
+    float: right;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 15px;
+    border: none;
+    background: none;
+    padding: 0 4px;
+  }
   .del-date:hover { color: #ef4444; }
 
-  .cell-top { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed rgba(0,0,0,0.08); }
-  .status-btn { width: 20px; height: 20px; border-radius: 4px; border: 1.5px solid #94a3b8; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; cursor: pointer; background: #fff; flex-shrink: 0; }
+  .cell-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .status-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1.5px solid var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    background: var(--bg);
+    color: var(--text);
+    flex-shrink: 0;
+    user-select: none;
+  }
   .status-done { background: #22c55e; color: #fff; border-color: #16a34a; }
   .status-cross { background: #ef4444; color: #fff; border-color: #dc2626; }
-  .time-tag { font-size: 11px; color: #475569; background: rgba(255,255,255,0.75); border: 1px dashed #cbd5e1; border-radius: 4px; padding: 1px 5px; outline: none; min-width: 42px; margin-left: auto; }
+  .status-orange { background: #f97316; color: #fff; border-color: #ea580c; }
 
-  .sub-list { list-style: none; padding: 0; margin: 0 0 6px 0; display: flex; flex-direction: column; gap: 5px; }
+  .time-tag {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--subtle);
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    outline: none;
+    min-width: 42px;
+    margin-left: auto;
+  }
+
+  .sub-list { list-style: none; padding: 0; margin: 0 0 6px 0; display: flex; flex-direction: column; gap: 6px; }
   .sub-item { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; }
-  .sub-text { flex: 1; outline: none; line-height: 1.4; }
-  .sub-text.done { text-decoration: line-through; opacity: 0.55; }
-  .sub-text.cross { color: #dc2626; text-decoration: line-through; }
-  .add-sub { font-size: 11px; color: #64748b; background: none; border: none; padding: 2px 0; cursor: pointer; }
-  .add-sub:hover { color: #0f172a; text-decoration: underline; }
+  .sub-text { flex: 1; outline: none; line-height: 1.4; word-break: break-word; }
+  .sub-text.done { text-decoration: line-through; opacity: 0.6; }
+  .sub-text.cross { color: #ef4444; text-decoration: line-through; }
+  .sub-text.orange { color: #ea580c; text-decoration: line-through; opacity: 0.78; }
+
+  .add-sub {
+    font-size: 11.5px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    padding: 2px 0;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .add-sub:hover { color: var(--text); text-decoration: underline; }
 
   .notes-box { min-height: 60px; font-size: 13px; line-height: 1.5; outline: none; }
-  .notes-box:empty:before { content: "Write notes..."; color: #94a3b8; }
+  .notes-box:empty:before { content: "Write notes..."; color: var(--muted); }
 
-  /* Dashboard inside Sidebar */
-  .bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 11px; }
-  .bar-label { width: 65px; font-weight: 600; }
-  .bar-track { flex: 1; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
-  .bar-fill { height: 100%; background: #22c55e; transition: width 0.3s; }
-  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; }
-  .m-day { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; background: #e2e8f0; }
-  .col-manage-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
- .mobile-close-btn { display: none; }
+  /* Floating Bottom Pill for Page Navigation (Clean iPhone & Mac Docked Pill) */
+  .floating-page-pill {
+    position: fixed;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 80;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 10px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .pill-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--subtle);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .pill-nav-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+  }
+  .pill-nav-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .pill-page-label {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0 4px;
+    white-space: nowrap;
+  }
+
+  /* Dedicated Sub-Pages (Declutter, Timeline, Goal Action Plan) */
+  .subpage-card {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    max-width: 840px;
+  }
+  .subpage-card.active { display: block; }
+  .subpage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .subpage-header h2 { margin: 0; font-size: 20px; font-weight: 800; }
+
+  .declutter-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .declutter-input-row input {
+    flex: 1;
+    min-width: 180px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    outline: none;
+  }
+  .declutter-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .declutter-bullet-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .declutter-bullet-text {
+    flex: 1;
+    cursor: pointer;
+    word-break: break-word;
+  }
+  .declutter-bullet-text::before {
+    content: "• ";
+    font-weight: 800;
+    margin-right: 4px;
+  }
+  .declutter-bullet-item.struck .declutter-bullet-text {
+    text-decoration: line-through;
+    opacity: 0.52;
+  }
+
+  /* Timeline Table */
+  .timeline-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+  .timeline-table th, .timeline-table td {
+    min-width: 0;
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+  .timeline-table th {
+    background: var(--subtle);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+  }
+  .tl-crossed {
+    text-decoration: line-through;
+    color: #ef4444;
+    opacity: 0.72;
+  }
+  .tl-done {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  /* Goal Action Plan Cards */
+  .action-tasks-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+  }
+  .action-tasks-bar span {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .goal-task-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .goal-task-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .goal-task-label {
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .goal-task-label.is-done { text-decoration: line-through; opacity: 0.6; }
+  .goal-task-label.is-irrelevant { text-decoration: line-through; color: #ea580c; opacity: 0.78; }
+  .goal-task-detail {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    margin-bottom: 8px;
+  }
+  .goal-task-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .goal-task-footer input[type="date"] {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 13px;
+  }
 
   @media (max-width: 768px) {
     body { overflow-x: hidden; }
-    .mobile-close-btn { display: block; }
-    .sidebar { position: fixed; left: 0; top: 0; z-index: 100; height: 100vh; width: 85vw; max-width: 310px; overflow-y: auto; -webkit-overflow-scrolling: touch; box-shadow: 4px 0 20px rgba(0,0,0,0.18); transition: transform 0.25s ease; }
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 100;
+      height: 100dvh;
+      width: 85vw;
+      max-width: 310px;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.22);
+      transition: transform 0.25s ease;
+    }
     .sidebar.closed { margin-left: 0; transform: translateX(-100%); }
-    .main { padding: 14px 12px; width: 100%; }
+    .main { padding: 14px 12px 72px; width: 100%; }
     .page-title { font-size: 20px; margin-bottom: 12px; }
-    .top-bar { flex-wrap: wrap; gap: 8px; }
-    .format-tools button { padding: 6px 8px; font-size: 13px; }
-    th, td { min-width: 175px; padding: 8px; }
-    .date-cell { min-width: 105px; width: 105px; font-size: 12px; }
+    th, td { min-width: 180px; padding: 8px; }
+    .date-cell { min-width: 105px; width: 105px; font-size: 12px; position: sticky; left: 0; z-index: 3; }
     .status-btn { width: 24px; height: 24px; }
+    .subpage-card { padding: 16px 14px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Collapsible Left Sidebar -->
+<div class="edge-swipe-zone" id="edgeSwipeZone"></div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<!-- Collapsible & Scrollable Left Sidebar -->
 <aside class="sidebar closed" id="sidebar">
-  <button class="btn mobile-close-btn" onclick="document.getElementById('sidebar').classList.add('closed')" style="margin-bottom: 14px; font-weight: 600;">✕ Close Menu</button>
-  <div class="side-sec">
+  <div class="sidebar-top-row">
+    <span>Menu</span>
+    <button class="toggle-btn" onclick="closeSidebar()" style="padding: 4px 10px; font-size: 12px;">✕ Close Menu</button>
+  </div>
+
+  <!-- 1. Log Date -->
+  <div class="side-box">
     <h4>📅 Log Date</h4>
     <input type="date" id="dateInput" class="side-input">
     <button class="btn btn-primary" onclick="addDateRow()">+ Add Date to Table</button>
   </div>
 
-  <div class="side-sec">
-    <h4>📊 Productivity Dashboard</h4>
-    <div style="font-size:12px; font-weight:600; margin-bottom:4px;">Today's Progress</div>
-    <div id="todayChart" style="margin-bottom:12px;"></div>
+  <!-- 2. Productivity Dashboard -->
+  <div class="acc-card" id="acc-dashboard">
+    <button class="acc-btn" onclick="toggleAccordion('acc-dashboard')">
+      <span>📊 Productivity Dashboard</span>
+      <span class="acc-arrow">▼</span>
+    </button>
+    <div class="acc-panel">
+      <div style="font-size:12px; font-weight:600; margin-bottom:4px;">Today's Progress</div>
+      <div id="todayChart" style="margin-bottom:12px;"></div>
 
-    <div style="font-size:12px; font-weight:600; margin-bottom:4px;">Weekly Pattern (Avg %)</div>
-    <div id="weekChart" style="margin-bottom:12px;"></div>
-
-    <div style="font-size:12px; font-weight:600; margin-bottom:4px;">Monthly Overview</div>
-    <div class="month-grid" id="monthChart"></div>
+      <div style="font-size:12px; font-weight:600; margin-bottom:4px;">Weekly Pattern (Avg %)</div>
+      <div id="weekChart"></div>
+    </div>
   </div>
 
-  <div class="side-sec" style="border-bottom:none;">
-    <h4>⚙️ Customize Matrix</h4>
-    <label style="font-size:11px; color:#64748b;">App / Table Title</label>
-    <input type="text" id="titleInput" class="side-input" oninput="updateTitle(this.value)">
-    
-    <label style="font-size:11px; color:#64748b;">Columns & Colors</label>
-    <div id="colManager"></div>
-    <button class="btn" onclick="addColumn()" style="margin-top:6px;">+ Add Column</button>
+  <!-- 3. Monthly Overview -->
+  <div class="acc-card" id="acc-monthly">
+    <button class="acc-btn" onclick="toggleAccordion('acc-monthly')">
+      <span>🗓️ Monthly Overview</span>
+      <span class="acc-arrow">▼</span>
+    </button>
+    <div class="acc-panel">
+      <div class="month-nav">
+        <button onclick="shiftMonth(-1)">‹</button>
+        <span id="monthLabel">Month Year</span>
+        <button onclick="shiftMonth(1)">›</button>
+      </div>
+      <div class="month-grid" id="monthChart"></div>
+      <div class="m-legend">
+        <span><i class="m-dot" style="background:#ef4444;"></i>0%</span>
+        <span><i class="m-dot" style="background:#f97316;"></i>&lt;50%</span>
+        <span><i class="m-dot" style="background:#4ade80;"></i>50-99%</span>
+        <span><i class="m-dot" style="background:#15803d;"></i>100%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Declutter Your Mind -->
+  <div class="acc-card">
+    <button class="acc-btn" onclick="openSubpage('declutter')">
+      <span>🧠 Declutter Your Mind</span>
+      <span style="font-size:11px; color:var(--muted);">Open →</span>
+    </button>
+  </div>
+
+  <!-- 5. Your Upcoming Timeline -->
+  <div class="acc-card">
+    <button class="acc-btn" onclick="openSubpage('timeline')">
+      <span>⏳ Your Upcoming Timeline</span>
+      <span style="font-size:11px; color:var(--muted);">Open →</span>
+    </button>
+  </div>
+
+  <!-- 6. Your Long Term Goals -->
+  <div class="acc-card" id="acc-goals">
+    <button class="acc-btn" onclick="toggleAccordion('acc-goals')">
+      <span>🎯 Your Long Term Goals</span>
+      <span class="acc-arrow">▼</span>
+    </button>
+    <div class="acc-panel">
+      <div id="goalsSideList"></div>
+      <button class="btn" onclick="addGoal()" style="margin-top:4px;">+ Add Goal</button>
+    </div>
+  </div>
+
+  <!-- 7. Your Goals Overview (Right under Long Term Goals) -->
+  <div class="acc-card" id="acc-goals-overview">
+    <button class="acc-btn" onclick="toggleAccordion('acc-goals-overview')">
+      <span>📈 Your Goals Overview</span>
+      <span class="acc-arrow">▼</span>
+    </button>
+    <div class="acc-panel">
+      <div id="goalsOverviewBars"></div>
+    </div>
+  </div>
+
+  <!-- 8. Customize Matrix -->
+  <div class="acc-card" id="acc-customize">
+    <button class="acc-btn" onclick="toggleAccordion('acc-customize')">
+      <span>⚙️ Customize Matrix</span>
+      <span class="acc-arrow">▼</span>
+    </button>
+    <div class="acc-panel">
+      <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:4px;">Theme</label>
+      <div class="theme-grid">
+        <button class="theme-opt" id="theme-white" onclick="setTheme('white')">☀️ White</button>
+        <button class="theme-opt" id="theme-yellow" onclick="setTheme('yellow')">📝 Yellow</button>
+        <button class="theme-opt" id="theme-dark" onclick="setTheme('dark')">🌙 Dark</button>
+      </div>
+
+      <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:4px;">App / Table Title</label>
+      <input type="text" id="titleInput" class="side-input" oninput="updateTitle(this.value)">
+
+      <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:4px;">Columns & Colors</label>
+      <div id="colManager"></div>
+      <button class="btn" onclick="addColumn()" style="margin-top:6px;">+ Add Column</button>
+    </div>
   </div>
 </aside>
 
@@ -124,30 +847,95 @@
     <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu & Dashboard</button>
     <div class="format-tools">
       <button onclick="formatText('hiliteColor', '#fef08a')" title="Highlight selected text">🖍️ Highlight</button>
-      <button onclick="formatText('underline')" title="Underline selected text"><u>U</u> Underline</button>
-      <button onclick="insertSticker('❗')">❗</button>
-      <button onclick="insertSticker('⭐')">⭐</button>
-      <button onclick="insertSticker('🔥')">🔥</button>
-      <button onclick="insertSticker('✅')">✅</button>
+      <button onclick="insertSticker('❗')" title="Insert exclamation mark">❗</button>
+      <button id="undoBtn" onclick="undoLastAction()" disabled title="Undo last change (Cmd+Z)">↩ Undo</button>
     </div>
   </div>
 
-  <h1 id="pageTitle" class="page-title" contenteditable="true" onblur="updateTitle(this.innerText)"></h1>
+  <!-- Locked Title (Editable only inside Customize Matrix menu) -->
+  <h1 id="pageTitle" class="page-title"></h1>
 
-  <div class="table-wrap">
+  <!-- View 1: Matrix Table View -->
+  <div class="table-wrap" id="matrixView">
     <table>
       <thead><tr id="headerRow"></tr></thead>
       <tbody id="matrixBody"></tbody>
     </table>
   </div>
+
+  <!-- Floating Bottom Pill for Multi-Page Navigation -->
+  <div class="floating-page-pill" id="matrixPagination">
+    <button class="pill-nav-btn" id="prevPageBtn" onclick="changeMatrixPage(-1)" title="Previous Page">‹</button>
+    <span class="pill-page-label" id="pageIndicator">1 / 1</span>
+    <button class="pill-nav-btn" id="nextPageBtn" onclick="changeMatrixPage(1)" title="Next Page">›</button>
+  </div>
+
+  <!-- View 2: Declutter Your Mind Page -->
+  <section class="subpage-card" id="declutterView">
+    <div class="subpage-header">
+      <h2>🧠 Declutter Your Mind</h2>
+      <button class="toggle-btn" onclick="openSubpage('matrix')">← Back to Matrix</button>
+    </div>
+    <div class="declutter-input-row">
+      <input type="text" id="declutterInput" placeholder="Jot an extra thought..." onkeydown="if(event.key==='Enter') addDeclutterBullet()">
+      <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addDeclutterBullet()">+ Add</button>
+    </div>
+    <ul class="declutter-bullets" id="declutterList"></ul>
+  </section>
+
+  <!-- View 3: Your Upcoming Timeline Page (Auto-Sorted Chronologically) -->
+  <section class="subpage-card" id="timelineView">
+    <div class="subpage-header">
+      <h2>⏳ Your Upcoming Timeline</h2>
+      <button class="toggle-btn" onclick="openSubpage('matrix')">← Back to Matrix</button>
+    </div>
+    <div class="declutter-input-row">
+      <input type="date" id="tlDateInput" style="max-width: 170px;">
+      <input type="text" id="tlActivityInput" placeholder="Activity or event to attend..." onkeydown="if(event.key==='Enter') addTimelineItem()">
+      <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addTimelineItem()">+ Add</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="timeline-table">
+        <thead>
+          <tr>
+            <th style="width:44px; text-align:center;">Status</th>
+            <th style="width:130px;">Date</th>
+            <th>Activity</th>
+            <th style="width:44px;"></th>
+          </tr>
+        </thead>
+        <tbody id="timelineBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- View 4: Goal Action Plan Page -->
+  <section class="subpage-card" id="goalPlanView">
+    <div class="subpage-header">
+      <h2>🎯 Action Plan — <span id="activeGoalTitle">Goal</span></h2>
+      <button class="toggle-btn" onclick="openSubpage('matrix')">← Back to Matrix</button>
+    </div>
+    <div class="action-tasks-bar">
+      <span>Tasks</span>
+      <button class="btn btn-primary" style="width:auto; padding:6px 14px;" onclick="addGoalTask()">+ Add Tasks</button>
+    </div>
+    <div id="goalTasksContainer"></div>
+  </section>
 </main>
 
 <script>
 const TODAY = new Date().toISOString().split('T')[0];
+let viewYear = new Date().getFullYear();
+let viewMonth = new Date().getMonth();
+let currentView = 'matrix';
+let activeGoalId = null;
+let matrixPage = 1;
+let pageSlices = []; // Dynamic screen-filling page ranges [startIdx, endIdx]
 
 const DEFAULT_DATA = {
   title: "Iqra's Productivity Matrix",
-  dates: [TODAY], // Starts clean with ONLY today's date
+  theme: "white",
+  dates: [TODAY],
   notesColor: "#fffbeb",
   columns: [
     { id: 'c1', name: 'Study', color: '#eff6ff' },
@@ -155,29 +943,499 @@ const DEFAULT_DATA = {
     { id: 'c3', name: 'Personal & Health', color: '#fdf4ff' }
   ],
   records: {},
-  notes: {}
+  notes: {},
+  braindump: [],
+  timeline: [],
+  goals: []
 };
 
-let state = JSON.parse(localStorage.getItem('iqraMatrixCleanV1')) || DEFAULT_DATA;
-const dateInput = document.getElementById('dateInput');
-dateInput.value = TODAY;
+function normalizeState(rawObj) {
+  const base = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  if (!rawObj || typeof rawObj !== 'object') return base;
+
+  const merged = { ...base, ...rawObj };
+  if (!merged.theme) merged.theme = "white";
+  if (!Array.isArray(merged.braindump)) merged.braindump = [];
+  if (!Array.isArray(merged.timeline)) merged.timeline = [];
+  if (!Array.isArray(merged.goals)) merged.goals = [];
+
+  const validDates = Array.isArray(merged.dates)
+    ? merged.dates
+        .map(d => String(d).split('_')[0])
+        .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+    : [TODAY];
+
+  merged.dates = Array.from(new Set(validDates.length ? validDates : [TODAY])).sort();
+  return merged;
+}
+
+let state = normalizeState(JSON.parse(localStorage.getItem('iqraMatrixCleanV1')));
+let undoStack = [];
+
+document.getElementById('dateInput').value = TODAY;
+document.getElementById('tlDateInput').value = TODAY;
+
+function formatDateDMY(isoStr) {
+  const clean = String(isoStr).split('_')[0];
+  const parts = clean.split('-');
+  if (parts.length !== 3) return clean;
+  return `${Number(parts[2])}/${Number(parts[1])}/${parts[0]}`;
+}
+
+function pushUndo() {
+  undoStack.push(JSON.stringify(state));
+  if (undoStack.length > 40) undoStack.shift();
+  updateUndoBtn();
+}
+
+function updateUndoBtn() {
+  const btn = document.getElementById('undoBtn');
+  if (btn) btn.disabled = undoStack.length === 0;
+}
+
+function undoLastAction() {
+  if (undoStack.length === 0) return;
+  state = normalizeState(JSON.parse(undoStack.pop()));
+  updateUndoBtn();
+  save();
+  render();
+}
+
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+    const tag = document.activeElement ? document.activeElement.tagName : '';
+    const isEdit = document.activeElement && document.activeElement.isContentEditable;
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !isEdit) {
+      e.preventDefault();
+      undoLastAction();
+    }
+  }
+});
 
 function save() {
+  applyTheme();
   localStorage.setItem('iqraMatrixCleanV1', JSON.stringify(state));
   if (window.pushToCloud) window.pushToCloud();
   renderDashboard();
+  renderGoalsOverview();
+}
+
+function applyTheme() {
+  const t = state.theme || 'white';
+  document.body.setAttribute('data-theme', t);
+  ['white', 'yellow', 'dark'].forEach(name => {
+    const btn = document.getElementById('theme-' + name);
+    if (btn) btn.classList.toggle('active', name === t);
+  });
+}
+
+function setTheme(t) {
+  pushUndo();
+  state.theme = t;
+  save();
+  renderTableOnly();
+}
+
+/* Sidebar Open / Close & Mobile Swipe Gestures */
+function openSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebarBackdrop');
+  sb.classList.remove('closed');
+  sb.style.transform = '';
+  if (window.innerWidth <= 768) bd.classList.add('active');
+}
+
+function closeSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebarBackdrop');
+  sb.classList.add('closed');
+  sb.style.transform = '';
+  bd.classList.remove('active');
 }
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('closed');
+  const sb = document.getElementById('sidebar');
+  if (sb.classList.contains('closed')) openSidebar();
+  else closeSidebar();
 }
 
+(function setupSwipe() {
+  const sb = document.getElementById('sidebar');
+  const edge = document.getElementById('edgeSwipeZone');
+  let startX = 0, startY = 0, curX = 0, swipingClose = false, swipingOpen = false;
+
+  sb.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 768 || sb.classList.contains('closed')) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    curX = startX;
+    swipingClose = true;
+    sb.style.transition = 'none';
+  }, { passive: true });
+
+  sb.addEventListener('touchmove', (e) => {
+    if (!swipingClose) return;
+    curX = e.touches[0].clientX;
+    const dx = curX - startX;
+    const dy = Math.abs(e.touches[0].clientY - startY);
+    if (dx < 0 && Math.abs(dx) > dy * 0.9) {
+      sb.style.transform = `translateX(${dx}px)`;
+    }
+  }, { passive: true });
+
+  sb.addEventListener('touchend', () => {
+    if (!swipingClose) return;
+    swipingClose = false;
+    sb.style.transition = '';
+    if (curX - startX < -55) closeSidebar();
+    else sb.style.transform = '';
+  });
+
+  edge.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 768 || !sb.classList.contains('closed')) return;
+    startX = e.touches[0].clientX;
+    curX = startX;
+    swipingOpen = true;
+  }, { passive: true });
+
+  edge.addEventListener('touchmove', (e) => {
+    if (!swipingOpen) return;
+    curX = e.touches[0].clientX;
+  }, { passive: true });
+
+  edge.addEventListener('touchend', () => {
+    if (!swipingOpen) return;
+    swipingOpen = false;
+    if (curX - startX > 45) openSidebar();
+  });
+})();
+
+function toggleAccordion(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+/* Sub-Page Navigation */
+function openSubpage(viewName, goalId = null) {
+  currentView = viewName;
+  if (goalId) activeGoalId = goalId;
+
+  document.getElementById('matrixView').style.display = (viewName === 'matrix') ? 'block' : 'none';
+  document.getElementById('declutterView').classList.toggle('active', viewName === 'declutter');
+  document.getElementById('timelineView').classList.toggle('active', viewName === 'timeline');
+  document.getElementById('goalPlanView').classList.toggle('active', viewName === 'goalPlan');
+
+  if (viewName === 'matrix') renderTableOnly();
+  else updateFloatingPaginationVisibility();
+
+  if (viewName === 'declutter') renderDeclutterList();
+  if (viewName === 'timeline') renderTimelineTable();
+  if (viewName === 'goalPlan') renderGoalActionPlan();
+
+  if (window.innerWidth <= 768) closeSidebar();
+}
+
+function updateFloatingPaginationVisibility() {
+  const totalPages = Math.max(1, pageSlices.length);
+  const pagBar = document.getElementById('matrixPagination');
+
+  if (currentView === 'matrix' && totalPages > 1) {
+    pagBar.style.display = 'inline-flex';
+    document.getElementById('pageIndicator').innerText = `${matrixPage} / ${totalPages}`;
+    document.getElementById('prevPageBtn').disabled = (matrixPage <= 1);
+    document.getElementById('nextPageBtn').disabled = (matrixPage >= totalPages);
+  } else {
+    pagBar.style.display = 'none';
+  }
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/* Declutter Your Mind */
+function addDeclutterBullet() {
+  const inp = document.getElementById('declutterInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  pushUndo();
+  state.braindump.unshift({ text: txt, struck: false });
+  inp.value = '';
+  save();
+  renderDeclutterList();
+}
+
+function toggleDeclutterBullet(idx) {
+  if (!state.braindump[idx]) return;
+  pushUndo();
+  state.braindump[idx].struck = !state.braindump[idx].struck;
+  save();
+  renderDeclutterList();
+}
+
+function deleteDeclutterBullet(idx) {
+  pushUndo();
+  state.braindump.splice(idx, 1);
+  save();
+  renderDeclutterList();
+}
+
+function renderDeclutterList() {
+  const ul = document.getElementById('declutterList');
+  if (!state.braindump.length) {
+    ul.innerHTML = `<li style="color:var(--muted); font-size:14px;">Nothing written yet. Type a bullet point above to clear your head.</li>`;
+    return;
+  }
+  ul.innerHTML = state.braindump.map((item, idx) => `
+    <li class="declutter-bullet-item ${item.struck ? 'struck' : ''}">
+      <span class="declutter-bullet-text" onclick="toggleDeclutterBullet(${idx})">${escapeHtml(item.text)}</span>
+      <button class="del-date" onclick="deleteDeclutterBullet(${idx})" title="Delete">×</button>
+    </li>
+  `).join('');
+}
+
+/* Your Upcoming Timeline (Always sorted chronologically) */
+function addTimelineItem() {
+  const d = document.getElementById('tlDateInput').value;
+  const inp = document.getElementById('tlActivityInput');
+  const act = inp.value.trim();
+  if (!d || !act) return;
+
+  pushUndo();
+  state.timeline.push({ id: 'tl' + Date.now(), date: d, activity: act, status: 0 });
+  state.timeline.sort((a, b) => a.date.localeCompare(b.date));
+  inp.value = '';
+  save();
+  renderTimelineTable();
+}
+
+function toggleTimelineStatus(id) {
+  const item = state.timeline.find(x => x.id === id);
+  if (!item) return;
+  pushUndo();
+  item.status = ((item.status || 0) + 1) % 3;
+  save();
+  renderTimelineTable();
+}
+
+function updateTimelineActivity(id, newAct) {
+  const item = state.timeline.find(x => x.id === id);
+  const clean = newAct.trim();
+  if (!item || !clean || item.activity === clean) return;
+  pushUndo();
+  item.activity = clean;
+  save();
+}
+
+function deleteTimelineItem(id) {
+  pushUndo();
+  state.timeline = state.timeline.filter(x => x.id !== id);
+  save();
+  renderTimelineTable();
+}
+
+function renderTimelineTable() {
+  const tbody = document.getElementById('timelineBody');
+  state.timeline.sort((a, b) => a.date.localeCompare(b.date));
+
+  if (!state.timeline.length) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--muted); padding:20px;">No upcoming activities added yet. Pick any date above to schedule one.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = state.timeline.map(item => {
+    const sym = item.status === 1 ? '✓' : item.status === 2 ? '✗' : '';
+    const cls = item.status === 1 ? 'status-done' : item.status === 2 ? 'status-cross' : '';
+    const txtCls = item.status === 1 ? 'tl-done' : item.status === 2 ? 'tl-crossed' : '';
+
+    return `
+      <tr>
+        <td style="text-align:center;">
+          <span class="status-btn ${cls}" onclick="toggleTimelineStatus('${item.id}')" title="Click: ✓ Done | ✗ Cross">${sym}</span>
+        </td>
+        <td style="font-weight:700; white-space:nowrap;">${formatDateDMY(item.date)}</td>
+        <td class="${txtCls}" contenteditable="true" onblur="updateTimelineActivity('${item.id}', this.innerText)" style="outline:none;">${escapeHtml(item.activity)}</td>
+        <td style="text-align:center;">
+          <button class="del-date" style="float:none;" onclick="deleteTimelineItem('${item.id}')" title="Remove">×</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* Your Long Term Goals & Goals Overview */
+function addGoal() {
+  pushUndo();
+  const nextNum = state.goals.length + 1;
+  const newGoal = {
+    id: 'g' + Date.now(),
+    name: `Goal ${nextNum}`,
+    tasks: []
+  };
+  state.goals.push(newGoal);
+  save();
+  renderGoalsSidebar();
+  renderGoalsOverview();
+}
+
+function renameGoal(goalId, newName) {
+  const g = state.goals.find(x => x.id === goalId);
+  const clean = newName.trim();
+  if (!g || !clean || g.name === clean) return;
+  pushUndo();
+  g.name = clean;
+  save();
+  renderGoalsOverview();
+  if (currentView === 'goalPlan' && activeGoalId === goalId) {
+    document.getElementById('activeGoalTitle').innerText = clean;
+  }
+}
+
+function deleteGoal(goalId) {
+  pushUndo();
+  state.goals = state.goals.filter(x => x.id !== goalId);
+  save();
+  renderGoalsSidebar();
+  renderGoalsOverview();
+  if (currentView === 'goalPlan' && activeGoalId === goalId) {
+    openSubpage('matrix');
+  }
+}
+
+function renderGoalsSidebar() {
+  const wrap = document.getElementById('goalsSideList');
+  if (!state.goals.length) {
+    wrap.innerHTML = `<div style="font-size:12px; color:var(--muted); margin-bottom:6px;">No goals added yet.</div>`;
+    return;
+  }
+  wrap.innerHTML = state.goals.map(g => `
+    <div class="goal-side-row">
+      <input class="goal-name-input" type="text" value="${escapeHtml(g.name)}" onchange="renameGoal('${g.id}', this.value)" title="Click to rename goal">
+      <button class="goal-open-pill" onclick="openSubpage('goalPlan', '${g.id}')">Open</button>
+      <button class="del-date" style="float:none;" onclick="deleteGoal('${g.id}')" title="Delete goal">×</button>
+    </div>
+  `).join('');
+}
+
+function addGoalTask() {
+  const g = state.goals.find(x => x.id === activeGoalId);
+  if (!g) return;
+  pushUndo();
+  g.tasks.push({
+    id: 'gt' + Date.now(),
+    detail: '',
+    date: '',
+    status: 0
+  });
+  save();
+  renderGoalActionPlan();
+}
+
+function toggleGoalTaskStatus(taskId) {
+  const g = state.goals.find(x => x.id === activeGoalId);
+  if (!g) return;
+  const t = g.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  pushUndo();
+  t.status = ((t.status || 0) + 1) % 3;
+  save();
+  renderGoalActionPlan();
+}
+
+function updateGoalTaskDetail(taskId, val) {
+  const g = state.goals.find(x => x.id === activeGoalId);
+  const t = g?.tasks.find(x => x.id === taskId);
+  if (!t || t.detail === val) return;
+  pushUndo();
+  t.detail = val;
+  save();
+}
+
+function updateGoalTaskDate(taskId, val) {
+  const g = state.goals.find(x => x.id === activeGoalId);
+  const t = g?.tasks.find(x => x.id === taskId);
+  if (!t || t.date === val) return;
+  pushUndo();
+  t.date = val;
+  save();
+}
+
+function deleteGoalTask(taskId) {
+  const g = state.goals.find(x => x.id === activeGoalId);
+  if (!g) return;
+  pushUndo();
+  g.tasks = g.tasks.filter(x => x.id !== taskId);
+  save();
+  renderGoalActionPlan();
+}
+
+function renderGoalActionPlan() {
+  const g = state.goals.find(x => x.id === activeGoalId);
+  if (!g) {
+    openSubpage('matrix');
+    return;
+  }
+  document.getElementById('activeGoalTitle').innerText = g.name;
+  const box = document.getElementById('goalTasksContainer');
+
+  if (!g.tasks.length) {
+    box.innerHTML = `<div style="color:var(--muted); font-size:14px; padding:12px 4px;">No tasks added to this action plan yet. Click <strong>+ Add Tasks</strong> above to create Task 1.</div>`;
+    return;
+  }
+
+  box.innerHTML = g.tasks.map((t, idx) => {
+    const sym = t.status === 1 ? '✓' : t.status === 2 ? '—' : '';
+    const boxCls = t.status === 1 ? 'status-done' : t.status === 2 ? 'status-orange' : '';
+    const lblCls = t.status === 1 ? 'is-done' : t.status === 2 ? 'is-irrelevant' : '';
+
+    return `
+      <div class="goal-task-card">
+        <div class="goal-task-head">
+          <span class="status-btn ${boxCls}" onclick="toggleGoalTaskStatus('${t.id}')" title="Click: ✓ Completed | — Not Relevant">${sym}</span>
+          <span class="goal-task-label ${lblCls}">Task ${idx + 1}</span>
+          <button class="del-date" style="margin-left:auto;" onclick="deleteGoalTask('${t.id}')" title="Delete task">×</button>
+        </div>
+        <textarea class="goal-task-detail" placeholder="Type task details..." onblur="updateGoalTaskDetail('${t.id}', this.value)">${escapeHtml(t.detail)}</textarea>
+        <div class="goal-task-footer">
+          <span>Target Date:</span>
+          <input type="date" value="${t.date || ''}" onchange="updateGoalTaskDate('${t.id}', this.value)">
+          ${t.date ? `<span>(${formatDateDMY(t.date)})</span>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderGoalsOverview() {
+  const wrap = document.getElementById('goalsOverviewBars');
+  if (!state.goals.length) {
+    wrap.innerHTML = `<div style="font-size:12px; color:var(--muted);">Add a goal above to see completion progress.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = state.goals.map(g => {
+    const activeTasks = g.tasks.filter(t => t.status !== 2);
+    const completedCount = activeTasks.filter(t => t.status === 1).length;
+    const pct = activeTasks.length === 0 ? 0 : Math.round((completedCount / activeTasks.length) * 100);
+
+    return `
+      <div class="bar-row" style="margin-bottom:8px;">
+        <span class="bar-label" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <strong style="white-space:nowrap;">${pct}% completed</strong>
+      </div>
+    `;
+  }).join('');
+}
+
+/* Title (Editable ONLY from Customize Matrix menu) */
 function updateTitle(val) {
   const clean = val.trim() || "Iqra's Productivity Matrix";
+  if (clean === state.title) return;
+  pushUndo();
   state.title = clean;
   document.title = clean;
   document.getElementById('pageTitle').innerText = clean;
-  document.getElementById('titleInput').value = clean;
   save();
 }
 
@@ -185,50 +1443,92 @@ function addDateRow() {
   const d = dateInput.value;
   if (!d) return;
   if (!state.dates.includes(d)) {
+    pushUndo();
     state.dates.push(d);
-    state.dates.sort(); // Keeps dates in chronological order
-    save(); render();
+    state.dates.sort();
+    save();
+    // Render full table to compute exact viewport slices and jump to the page with the new date
+    openSubpage('matrix', null);
+    const idx = state.dates.indexOf(d);
+    const targetPageIdx = pageSlices.findIndex(([s, e]) => idx >= s && idx < e);
+    if (targetPageIdx !== -1 && (targetPageIdx + 1) !== matrixPage) {
+      matrixPage = targetPageIdx + 1;
+      renderTableOnly();
+    }
+  } else {
+    openSubpage('matrix');
   }
 }
 
 function removeDateRow(d) {
-  if (!confirm(`Remove ${d} and its tasks from the table?`)) return;
+  pushUndo();
   state.dates = state.dates.filter(item => item !== d);
   delete state.notes[d];
   Object.keys(state.records).forEach(k => { if (k.startsWith(d + '_')) delete state.records[k]; });
-  save(); render();
+  save();
+  render();
+}
+
+function changeMatrixPage(delta) {
+  const totalPages = Math.max(1, pageSlices.length);
+  matrixPage = Math.min(totalPages, Math.max(1, matrixPage + delta));
+  renderTableOnly();
 }
 
 function addColumn() {
   const name = prompt('New column name:');
   if (!name) return;
+  pushUndo();
   state.columns.push({ id: 'c' + Date.now(), name: name.trim(), color: '#f8fafc' });
-  save(); render();
+  save();
+  render();
 }
 
 function deleteColumn(id) {
-  if (state.columns.length <= 1 || !confirm('Delete this column?')) return;
+  if (state.columns.length <= 1) return;
+  pushUndo();
   state.columns = state.columns.filter(c => c.id !== id);
-  save(); render();
+  save();
+  render();
 }
 
 function updateColName(id, val) {
   const col = state.columns.find(c => c.id === id);
-  if (col && val.trim()) { col.name = val.trim(); save(); renderTableOnly(); }
+  if (col && val.trim() && col.name !== val.trim()) {
+    pushUndo();
+    col.name = val.trim();
+    save();
+    renderTableOnly();
+  }
 }
 
 function updateColColor(id, val) {
   const col = state.columns.find(c => c.id === id);
-  if (col) { col.color = val; save(); renderTableOnly(); }
+  if (col && col.color !== val) {
+    pushUndo();
+    col.color = val;
+    save();
+    renderTableOnly();
+  }
 }
 
 function updateNotesColor(val) {
-  state.notesColor = val; save(); renderTableOnly();
+  if (state.notesColor === val) return;
+  pushUndo();
+  state.notesColor = val;
+  save();
+  renderTableOnly();
 }
 
-function cycleStatus(s) { return (s + 1) % 3; }
-function statusSymbol(s) { return s === 1 ? '✓' : s === 2 ? '✗' : ''; }
-function statusClass(s) { return s === 1 ? 'status-done' : s === 2 ? 'status-cross' : ''; }
+/* 4-State Status Box for Matrix:
+   0 = Unchecked
+   1 = Green ✓ (Completed)
+   2 = Red ✗ (Incomplete)
+   3 = Orange — (Not Relevant / Ignored in productivity averages)
+*/
+function cycleStatus(s) { return ((s || 0) + 1) % 4; }
+function statusSymbol(s) { return s === 1 ? '✓' : s === 2 ? '✗' : s === 3 ? '—' : ''; }
+function statusClass(s) { return s === 1 ? 'status-done' : s === 2 ? 'status-cross' : s === 3 ? 'status-orange' : ''; }
 
 function getCell(date, colId) {
   const key = `${date}_${colId}`;
@@ -241,26 +1541,69 @@ function insertSticker(emoji) { document.execCommand('insertText', false, ' ' + 
 
 function renderSidebarControls() {
   document.getElementById('titleInput').value = state.title;
+
   const mgr = document.getElementById('colManager');
   mgr.innerHTML = state.columns.map(col => `
     <div class="col-manage-row">
       <input type="color" value="${col.color}" onchange="updateColColor('${col.id}', this.value)" style="width:26px;height:26px;border:none;background:none;cursor:pointer;">
-      <input type="text" value="${col.name}" onchange="updateColName('${col.id}', this.value)" class="side-input" style="margin:0;">
-      <button onclick="deleteColumn('${col.id}')" style="border:none;background:none;color:#94a3b8;cursor:pointer;font-size:15px;">×</button>
+      <input type="text" value="${escapeHtml(col.name)}" onchange="updateColName('${col.id}', this.value)" class="side-input" style="margin:0;">
+      <button onclick="deleteColumn('${col.id}')" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:15px;">×</button>
     </div>`).join('') + `
     <div class="col-manage-row">
       <input type="color" value="${state.notesColor}" onchange="updateNotesColor(this.value)" style="width:26px;height:26px;border:none;background:none;cursor:pointer;">
-      <span style="font-size:12px;color:#475569;">Notes Column Color</span>
+      <span style="font-size:12px;color:var(--muted);">Notes Column Color</span>
     </div>`;
 }
 
+function buildDateRowElement(date) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td class="date-cell">${formatDateDMY(date)} <button class="del-date" onclick="removeDateRow('${date}')" title="Remove date">×</button></td>`;
+
+  state.columns.forEach(col => {
+    const cell = getCell(date, col.id);
+    const td = document.createElement('td');
+    td.className = 'themed-cell';
+    td.style.background = col.color;
+
+    const subsHtml = cell.subs.map((sub, idx) => {
+      const tClass = sub.status === 1 ? 'done' : sub.status === 2 ? 'cross' : sub.status === 3 ? 'orange' : '';
+      return `
+      <li class="sub-item">
+        <span class="status-btn ${statusClass(sub.status)}" onclick="toggleSub('${date}','${col.id}',${idx})" title="Cycle: Done (✓) → Missed (✗) → Not Relevant (—)">${statusSymbol(sub.status)}</span>
+        <div class="sub-text ${tClass}" contenteditable="true" onblur="editSubText('${date}','${col.id}',${idx},this.innerHTML)">${sub.text}</div>
+        <span class="time-tag" contenteditable="true" onblur="editSubTime('${date}','${col.id}',${idx},this.innerText)">${sub.time || 'time'}</span>
+        <span onclick="delSub('${date}','${col.id}',${idx})" style="cursor:pointer;color:var(--muted);font-size:13px;">×</span>
+      </li>`;
+    }).join('');
+
+    td.innerHTML = `
+      <div class="cell-top">
+        <span class="status-btn ${statusClass(cell.status)}" onclick="toggleMain('${date}','${col.id}')" title="Click: ✓ Done | ✗ Missed | — Not Relevant">${statusSymbol(cell.status)}</span>
+        <span style="font-size:12px;font-weight:600;">All tasks</span>
+        <span class="time-tag" contenteditable="true" onblur="editMainTime('${date}','${col.id}',this.innerText)">${cell.time || '+ time'}</span>
+      </div>
+      <ul class="sub-list">${subsHtml}</ul>
+      <button class="add-sub" onclick="addSub('${date}','${col.id}')">+ Add task / chapter</button>`;
+    tr.appendChild(td);
+  });
+
+  const notesTd = document.createElement('td');
+  notesTd.className = 'themed-cell';
+  notesTd.style.background = state.notesColor;
+  notesTd.innerHTML = `<div class="notes-box" contenteditable="true" onblur="editNote('${date}', this.innerHTML)">${state.notes[date] || ''}</div>`;
+  tr.appendChild(notesTd);
+
+  return tr;
+}
+
+/* Dynamically fills the visible iPhone / Mac screen before breaking to the next page */
 function renderTableOnly() {
   document.getElementById('pageTitle').innerText = state.title;
   document.title = state.title;
 
   const headerRow = document.getElementById('headerRow');
   const tbody = document.getElementById('matrixBody');
-  headerRow.innerHTML = '<th class="date-cell" style="background:#f8fafc;">Date</th>';
+  headerRow.innerHTML = '<th class="date-cell">Date</th>';
 
   state.columns.forEach(col => {
     const th = document.createElement('th');
@@ -274,87 +1617,160 @@ function renderTableOnly() {
   notesTh.innerText = 'Notes';
   headerRow.appendChild(notesTh);
 
+  // Render all rows temporarily so we can measure exact rendered row heights on this screen
   tbody.innerHTML = '';
-  state.dates.forEach(date => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td class="date-cell">${date} <button class="del-date" onclick="removeDateRow('${date}')" title="Remove date">×</button></td>`;
-
-    state.columns.forEach(col => {
-      const cell = getCell(date, col.id);
-      const td = document.createElement('td');
-      td.style.background = col.color;
-
-      const subsHtml = cell.subs.map((sub, idx) => `
-        <li class="sub-item">
-          <span class="status-btn ${statusClass(sub.status)}" onclick="toggleSub('${date}','${col.id}',${idx})">${statusSymbol(sub.status)}</span>
-          <div class="sub-text ${sub.status===1?'done':sub.status===2?'cross':''}" contenteditable="true" onblur="editSubText('${date}','${col.id}',${idx},this.innerHTML)">${sub.text}</div>
-          <span class="time-tag" contenteditable="true" onblur="editSubTime('${date}','${col.id}',${idx},this.innerText)">${sub.time || 'time'}</span>
-          <span onclick="delSub('${date}','${col.id}',${idx})" style="cursor:pointer;color:#94a3b8;font-size:12px;">×</span>
-        </li>`).join('');
-
-      td.innerHTML = `
-        <div class="cell-top">
-          <span class="status-btn ${statusClass(cell.status)}" onclick="toggleMain('${date}','${col.id}')" title="Click: ✓ Done | ✗ Missed">${statusSymbol(cell.status)}</span>
-          <span style="font-size:12px;font-weight:600;">All tasks</span>
-          <span class="time-tag" contenteditable="true" onblur="editMainTime('${date}','${col.id}',this.innerText)">${cell.time || '+ time'}</span>
-        </div>
-        <ul class="sub-list">${subsHtml}</ul>
-        <button class="add-sub" onclick="addSub('${date}','${col.id}')">+ Add task / chapter</button>`;
-      tr.appendChild(td);
-    });
-
-    const notesTd = document.createElement('td');
-    notesTd.style.background = state.notesColor;
-    notesTd.innerHTML = `<div class="notes-box" contenteditable="true" onblur="editNote('${date}', this.innerHTML)">${state.notes[date] || ''}</div>`;
-    tr.appendChild(notesTd);
-
+  const allRows = state.dates.map(date => {
+    const tr = buildDateRowElement(date);
     tbody.appendChild(tr);
+    return tr;
   });
+
+  // Measure available vertical space from tbody top down to above the bottom pill/safe-area
+  const tbodyTop = tbody.getBoundingClientRect().top;
+  const bottomReserve = 64; // space for floating pill + bottom margin
+  const maxBodyHeight = Math.max(240, window.innerHeight - tbodyTop - bottomReserve);
+
+  // Group dates into pages that completely fill maxBodyHeight before starting a new page
+  const slices = [];
+  let startIdx = 0;
+  let currentHeight = 0;
+
+  allRows.forEach((tr, idx) => {
+    const rowH = tr.offsetHeight || 110;
+    if (idx > startIdx && (currentHeight + rowH) > maxBodyHeight) {
+      slices.push([startIdx, idx]);
+      startIdx = idx;
+      currentHeight = rowH;
+    } else {
+      currentHeight += rowH;
+    }
+  });
+  if (state.dates.length > 0) {
+    slices.push([startIdx, state.dates.length]);
+  }
+
+  pageSlices = slices.length ? slices : [[0, 0]];
+  if (matrixPage > pageSlices.length) matrixPage = pageSlices.length;
+  if (matrixPage < 1) matrixPage = 1;
+
+  const [visStart, visEnd] = pageSlices[matrixPage - 1];
+  allRows.forEach((tr, idx) => {
+    if (idx < visStart || idx >= visEnd) {
+      tr.remove();
+    }
+  });
+
+  updateFloatingPaginationVisibility();
 }
 
 function render() {
+  applyTheme();
   renderSidebarControls();
+  renderGoalsSidebar();
+  renderGoalsOverview();
   renderTableOnly();
   renderDashboard();
+  renderDeclutterList();
+  renderTimelineTable();
+  if (currentView === 'goalPlan') renderGoalActionPlan();
 }
 
-function editNote(date, html) { state.notes[date] = html; save(); }
-function toggleMain(d, c) { const cell = getCell(d, c); cell.status = cycleStatus(cell.status); save(); renderTableOnly(); }
-function editMainTime(d, c, val) { getCell(d, c).time = val === '+ time' ? '' : val.trim(); save(); }
-function addSub(d, c) { getCell(d, c).subs.push({ text: 'New task', time: '', status: 0 }); save(); renderTableOnly(); }
-function toggleSub(d, c, i) { const s = getCell(d, c).subs[i]; s.status = cycleStatus(s.status); save(); renderTableOnly(); }
-function editSubText(d, c, i, html) { getCell(d, c).subs[i].text = html; save(); }
-function editSubTime(d, c, i, val) { getCell(d, c).subs[i].time = val === 'time' ? '' : val.trim(); save(); }
-function delSub(d, c, i) { getCell(d, c).subs.splice(i, 1); save(); renderTableOnly(); }
+function editNote(date, html) {
+  if ((state.notes[date] || '') === html) return;
+  pushUndo();
+  state.notes[date] = html;
+  save();
+}
+function toggleMain(d, c) {
+  pushUndo();
+  const cell = getCell(d, c);
+  cell.status = cycleStatus(cell.status);
+  save();
+  renderTableOnly();
+}
+function editMainTime(d, c, val) {
+  const clean = val === '+ time' ? '' : val.trim();
+  if (getCell(d, c).time === clean) return;
+  pushUndo();
+  getCell(d, c).time = clean;
+  save();
+}
+function addSub(d, c) {
+  pushUndo();
+  getCell(d, c).subs.push({ text: 'New task', time: '', status: 0 });
+  save();
+  renderTableOnly();
+}
+function toggleSub(d, c, i) {
+  pushUndo();
+  const s = getCell(d, c).subs[i];
+  s.status = cycleStatus(s.status);
+  save();
+  renderTableOnly();
+}
+function editSubText(d, c, i, html) {
+  if (getCell(d, c).subs[i].text === html) return;
+  pushUndo();
+  getCell(d, c).subs[i].text = html;
+  save();
+  renderTableOnly();
+}
+function editSubTime(d, c, i, val) {
+  const clean = val === 'time' ? '' : val.trim();
+  if (getCell(d, c).subs[i].time === clean) return;
+  pushUndo();
+  getCell(d, c).subs[i].time = clean;
+  save();
+}
+function delSub(d, c, i) {
+  pushUndo();
+  getCell(d, c).subs.splice(i, 1);
+  save();
+  renderTableOnly();
+}
 
+/* Productivity Calculation (Completely disregards status === 3 Orange tasks) */
 function calcDayScore(date) {
   let total = 0, done = 0;
   state.columns.forEach(col => {
     const cell = state.records[`${date}_${col.id}`];
     if (!cell) return;
-    if (cell.subs.length > 0) {
-      cell.subs.forEach(s => { total++; if (s.status === 1) done++; });
-    } else if (cell.status > 0) {
-      total++; if (cell.status === 1) done++;
+    if (cell.subs && cell.subs.length > 0) {
+      cell.subs.forEach(s => {
+        if (s.status === 3) return;
+        total++;
+        if (s.status === 1) done++;
+      });
+    } else if (cell.status > 0 && cell.status !== 3) {
+      total++;
+      if (cell.status === 1) done++;
     }
   });
-  return total === 0 ? 0 : Math.round((done / total) * 100);
+  return total === 0 ? null : Math.round((done / total) * 100);
+}
+
+function shiftMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  renderDashboard();
 }
 
 function renderDashboard() {
   const todayScore = calcDayScore(TODAY);
+  const todayDisplay = todayScore !== null ? todayScore : 0;
   document.getElementById('todayChart').innerHTML = `
     <div class="bar-row">
-      <span class="bar-label">${TODAY}</span>
-      <div class="bar-track"><div class="bar-fill" style="width:${todayScore}%"></div></div>
-      <strong>${todayScore}%</strong>
+      <span class="bar-label">${formatDateDMY(TODAY)}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${todayDisplay}%"></div></div>
+      <strong>${todayScore !== null ? todayScore + '%' : '0%'}</strong>
     </div>`;
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const buckets = Array.from({ length: 7 }, () => []);
   state.dates.forEach(d => {
     const score = calcDayScore(d);
-    if (score > 0 || Object.keys(state.records).some(k => k.startsWith(d) && (state.records[k].status === 2 || state.records[k].subs.some(s => s.status === 2)))) {
+    if (score !== null) {
       buckets[new Date(d).getDay()].push(score);
     }
   });
@@ -364,19 +1780,39 @@ function renderDashboard() {
     return `<div class="bar-row"><span class="bar-label">${days[dayIdx]}</span><div class="bar-track"><div class="bar-fill" style="width:${avg}%"></div></div><span>${avg}%</span></div>`;
   }).join('');
 
-  const [yr, mo] = TODAY.split('-');
-  const daysInMonth = new Date(yr, mo, 0).getDate();
-  let mHtml = '';
+  // 4-Tier Monthly Overview
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  document.getElementById('monthLabel').innerText = `${monthNames[viewMonth]} ${viewYear}`;
+
+  const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  let mHtml = dows.map(w => `<div class="m-dow">${w}</div>`).join('');
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const offset = (firstDay + 6) % 7;
+  for (let i = 0; i < offset; i++) mHtml += `<div class="m-day empty"></div>`;
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   for (let day = 1; day <= daysInMonth; day++) {
-    const dStr = `${yr}-${mo}-${String(day).padStart(2, '0')}`;
+    const dStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const sc = calcDayScore(dStr);
-    const bg = sc >= 80 ? '#16a34a;color:#fff' : sc >= 50 ? '#4ade80' : sc > 0 ? '#bbf7d0' : '#e2e8f0';
-    mHtml += `<div class="m-day" style="background:${bg}" title="${dStr}: ${sc}%">${day}</div>`;
+    let cls = '';
+    if (sc !== null) {
+      if (sc === 0) cls = 'lvl-red';
+      else if (sc < 50) cls = 'lvl-orange';
+      else if (sc < 100) cls = 'lvl-green-light';
+      else cls = 'lvl-green-dark';
+    }
+    mHtml += `<div class="m-day ${cls}" title="${formatDateDMY(dStr)}${sc !== null ? ': ' + sc + '%' : ''}">${day}</div>`;
   }
   document.getElementById('monthChart').innerHTML = mHtml;
 }
+
+window.addEventListener('resize', () => {
+  if (currentView === 'matrix') renderTableOnly();
+});
+
 window.reloadState = function () {
-  state = JSON.parse(localStorage.getItem('iqraMatrixCleanV1')) || DEFAULT_DATA;
+  state = normalizeState(JSON.parse(localStorage.getItem('iqraMatrixCleanV1')));
   render();
 };
 window.render = render;
