@@ -6,6 +6,8 @@
 <title>Iqra's Productivity Matrix</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" id="metaThemeColor" content="#ffffff">
 <style>
   :root {
     --bg: #ffffff;
@@ -50,10 +52,13 @@
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  html, body {
     background: var(--bg);
     color: var(--text);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     margin: 0;
     display: flex;
     min-height: 100vh;
@@ -89,7 +94,7 @@
     width: 310px;
     background: var(--sidebar);
     border-right: 1px solid var(--border);
-    padding: 16px 14px 48px;
+    padding: calc(16px + env(safe-area-inset-top)) 14px 48px;
     transition: margin-left 0.25s ease, transform 0.25s ease, background 0.2s ease;
     flex-shrink: 0;
     height: 100vh;
@@ -554,10 +559,9 @@
     gap: 8px;
     margin-bottom: 16px;
     flex-wrap: wrap;
+    align-items: stretch;
   }
   .declutter-input-row input {
-    flex: 1;
-    min-width: 180px;
     padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid var(--border);
@@ -566,6 +570,27 @@
     font-size: 16px;
     outline: none;
   }
+  /* Rich Contenteditable Input Box for Highlight / Underline / Emoji support */
+  .rich-input-box {
+    flex: 1;
+    min-width: 180px;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.4;
+    outline: none;
+    word-break: break-word;
+  }
+  .rich-input-box:empty:before {
+    content: attr(data-placeholder);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
   .declutter-bullets {
     list-style: none;
     padding: 0;
@@ -586,9 +611,20 @@
     font-size: 15px;
     line-height: 1.45;
   }
+  .declutter-bullet-strike-btn {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
   .declutter-bullet-text {
     flex: 1;
-    cursor: pointer;
+    outline: none;
     word-break: break-word;
   }
   .declutter-bullet-text::before {
@@ -671,7 +707,7 @@
   .goal-task-label.is-irrelevant { text-decoration: line-through; color: #ea580c; opacity: 0.78; }
   .goal-task-detail {
     width: 100%;
-    min-height: 46px;
+    min-height: 48px;
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 8px 10px;
@@ -679,9 +715,15 @@
     color: var(--text);
     font-family: inherit;
     font-size: 14px;
-    resize: vertical;
+    line-height: 1.45;
     outline: none;
     margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .goal-task-detail:empty:before {
+    content: "Type task details...";
+    color: var(--muted);
+    pointer-events: none;
   }
   .goal-task-footer {
     display: flex;
@@ -713,7 +755,7 @@
       transition: transform 0.25s ease;
     }
     .sidebar.closed { margin-left: 0; transform: translateX(-100%); }
-    .main { padding: 14px 12px 72px; width: 100%; }
+    .main { padding: calc(14px + env(safe-area-inset-top)) 12px 72px; width: 100%; }
     .page-title { font-size: 20px; margin-bottom: 12px; }
     th, td { min-width: 180px; padding: 8px; }
     .date-cell { min-width: 105px; width: 105px; font-size: 12px; position: sticky; left: 0; z-index: 3; }
@@ -846,8 +888,9 @@
   <div class="top-bar">
     <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu & Dashboard</button>
     <div class="format-tools">
-      <button onclick="formatText('hiliteColor', '#fef08a')" title="Highlight selected text">🖍️ Highlight</button>
-      <button onclick="insertSticker('❗')" title="Insert exclamation mark">❗</button>
+      <button onmousedown="event.preventDefault()" onclick="formatText('hiliteColor', '#fef08a')" title="Highlight selected text">🖍️ Highlight</button>
+      <button onmousedown="event.preventDefault()" onclick="formatText('underline')" title="Underline selected text"><u>U</u> Underline</button>
+      <button onmousedown="event.preventDefault()" onclick="insertSticker('❗')" title="Insert exclamation mark">❗</button>
       <button id="undoBtn" onclick="undoLastAction()" disabled title="Undo last change (Cmd+Z)">↩ Undo</button>
     </div>
   </div>
@@ -877,7 +920,7 @@
       <button class="toggle-btn" onclick="openSubpage('matrix')">← Back to Matrix</button>
     </div>
     <div class="declutter-input-row">
-      <input type="text" id="declutterInput" placeholder="Jot an extra thought..." onkeydown="if(event.key==='Enter') addDeclutterBullet()">
+      <div id="declutterInput" class="rich-input-box" contenteditable="true" data-placeholder="Jot an extra thought..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); addDeclutterBullet(); }"></div>
       <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addDeclutterBullet()">+ Add</button>
     </div>
     <ul class="declutter-bullets" id="declutterList"></ul>
@@ -891,7 +934,7 @@
     </div>
     <div class="declutter-input-row">
       <input type="date" id="tlDateInput" style="max-width: 170px;">
-      <input type="text" id="tlActivityInput" placeholder="Activity or event to attend..." onkeydown="if(event.key==='Enter') addTimelineItem()">
+      <div id="tlActivityInput" class="rich-input-box" contenteditable="true" data-placeholder="Activity or event to attend..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); addTimelineItem(); }"></div>
       <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addTimelineItem()">+ Add</button>
     </div>
     <div style="overflow-x:auto;">
@@ -930,7 +973,7 @@ let viewMonth = new Date().getMonth();
 let currentView = 'matrix';
 let activeGoalId = null;
 let matrixPage = 1;
-let pageSlices = []; // Dynamic screen-filling page ranges [startIdx, endIdx]
+let pageSlices = [];
 
 const DEFAULT_DATA = {
   title: "Iqra's Productivity Matrix",
@@ -1023,6 +1066,10 @@ function save() {
 function applyTheme() {
   const t = state.theme || 'white';
   document.body.setAttribute('data-theme', t);
+  const metaColor = document.getElementById('metaThemeColor');
+  if (metaColor) {
+    metaColor.setAttribute('content', t === 'dark' ? '#0b1120' : t === 'yellow' ? '#fef9c3' : '#ffffff');
+  }
   ['white', 'yellow', 'dark'].forEach(name => {
     const btn = document.getElementById('theme-' + name);
     if (btn) btn.classList.toggle('active', name === t);
@@ -1133,6 +1180,7 @@ function openSubpage(viewName, goalId = null) {
   if (viewName === 'goalPlan') renderGoalActionPlan();
 
   if (window.innerWidth <= 768) closeSidebar();
+  window.scrollTo(0, 0);
 }
 
 function updateFloatingPaginationVisibility() {
@@ -1153,14 +1201,15 @@ function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-/* Declutter Your Mind */
+/* Declutter Your Mind (Supports Rich Highlight, Underline & Exclamation Mark) */
 function addDeclutterBullet() {
   const inp = document.getElementById('declutterInput');
-  const txt = inp.value.trim();
-  if (!txt) return;
+  const plain = inp.innerText.trim();
+  const html = inp.innerHTML.trim();
+  if (!plain) return;
   pushUndo();
-  state.braindump.unshift({ text: txt, struck: false });
-  inp.value = '';
+  state.braindump.unshift({ text: html, struck: false });
+  inp.innerHTML = '';
   save();
   renderDeclutterList();
 }
@@ -1171,6 +1220,13 @@ function toggleDeclutterBullet(idx) {
   state.braindump[idx].struck = !state.braindump[idx].struck;
   save();
   renderDeclutterList();
+}
+
+function editDeclutterBullet(idx, newHtml) {
+  if (!state.braindump[idx] || state.braindump[idx].text === newHtml) return;
+  pushUndo();
+  state.braindump[idx].text = newHtml;
+  save();
 }
 
 function deleteDeclutterBullet(idx) {
@@ -1188,23 +1244,25 @@ function renderDeclutterList() {
   }
   ul.innerHTML = state.braindump.map((item, idx) => `
     <li class="declutter-bullet-item ${item.struck ? 'struck' : ''}">
-      <span class="declutter-bullet-text" onclick="toggleDeclutterBullet(${idx})">${escapeHtml(item.text)}</span>
-      <button class="del-date" onclick="deleteDeclutterBullet(${idx})" title="Delete">×</button>
+      <div class="declutter-bullet-text" contenteditable="true" onblur="editDeclutterBullet(${idx}, this.innerHTML)">${item.text}</div>
+      <button class="declutter-bullet-strike-btn" onclick="toggleDeclutterBullet(${idx})" title="Cross out / restore">${item.struck ? 'Undo' : 'Cross'}</button>
+      <button class="del-date" style="float:none;" onclick="deleteDeclutterBullet(${idx})" title="Delete">×</button>
     </li>
   `).join('');
 }
 
-/* Your Upcoming Timeline (Always sorted chronologically) */
+/* Your Upcoming Timeline (Always sorted chronologically + Rich Formatting) */
 function addTimelineItem() {
   const d = document.getElementById('tlDateInput').value;
   const inp = document.getElementById('tlActivityInput');
-  const act = inp.value.trim();
-  if (!d || !act) return;
+  const plain = inp.innerText.trim();
+  const html = inp.innerHTML.trim();
+  if (!d || !plain) return;
 
   pushUndo();
-  state.timeline.push({ id: 'tl' + Date.now(), date: d, activity: act, status: 0 });
+  state.timeline.push({ id: 'tl' + Date.now(), date: d, activity: html, status: 0 });
   state.timeline.sort((a, b) => a.date.localeCompare(b.date));
-  inp.value = '';
+  inp.innerHTML = '';
   save();
   renderTimelineTable();
 }
@@ -1218,12 +1276,11 @@ function toggleTimelineStatus(id) {
   renderTimelineTable();
 }
 
-function updateTimelineActivity(id, newAct) {
+function updateTimelineActivity(id, newHtml) {
   const item = state.timeline.find(x => x.id === id);
-  const clean = newAct.trim();
-  if (!item || !clean || item.activity === clean) return;
+  if (!item || !newHtml.trim() || item.activity === newHtml) return;
   pushUndo();
-  item.activity = clean;
+  item.activity = newHtml;
   save();
 }
 
@@ -1254,7 +1311,7 @@ function renderTimelineTable() {
           <span class="status-btn ${cls}" onclick="toggleTimelineStatus('${item.id}')" title="Click: ✓ Done | ✗ Cross">${sym}</span>
         </td>
         <td style="font-weight:700; white-space:nowrap;">${formatDateDMY(item.date)}</td>
-        <td class="${txtCls}" contenteditable="true" onblur="updateTimelineActivity('${item.id}', this.innerText)" style="outline:none;">${escapeHtml(item.activity)}</td>
+        <td class="${txtCls}" contenteditable="true" onblur="updateTimelineActivity('${item.id}', this.innerHTML)" style="outline:none;">${item.activity}</td>
         <td style="text-align:center;">
           <button class="del-date" style="float:none;" onclick="deleteTimelineItem('${item.id}')" title="Remove">×</button>
         </td>
@@ -1342,12 +1399,12 @@ function toggleGoalTaskStatus(taskId) {
   renderGoalActionPlan();
 }
 
-function updateGoalTaskDetail(taskId, val) {
+function updateGoalTaskDetail(taskId, htmlVal) {
   const g = state.goals.find(x => x.id === activeGoalId);
   const t = g?.tasks.find(x => x.id === taskId);
-  if (!t || t.detail === val) return;
+  if (!t || t.detail === htmlVal) return;
   pushUndo();
-  t.detail = val;
+  t.detail = htmlVal;
   save();
 }
 
@@ -1395,7 +1452,7 @@ function renderGoalActionPlan() {
           <span class="goal-task-label ${lblCls}">Task ${idx + 1}</span>
           <button class="del-date" style="margin-left:auto;" onclick="deleteGoalTask('${t.id}')" title="Delete task">×</button>
         </div>
-        <textarea class="goal-task-detail" placeholder="Type task details..." onblur="updateGoalTaskDetail('${t.id}', this.value)">${escapeHtml(t.detail)}</textarea>
+        <div class="goal-task-detail" contenteditable="true" onblur="updateGoalTaskDetail('${t.id}', this.innerHTML)">${t.detail || ''}</div>
         <div class="goal-task-footer">
           <span>Target Date:</span>
           <input type="date" value="${t.date || ''}" onchange="updateGoalTaskDate('${t.id}', this.value)">
@@ -1447,7 +1504,6 @@ function addDateRow() {
     state.dates.push(d);
     state.dates.sort();
     save();
-    // Render full table to compute exact viewport slices and jump to the page with the new date
     openSubpage('matrix', null);
     const idx = state.dates.indexOf(d);
     const targetPageIdx = pageSlices.findIndex(([s, e]) => idx >= s && idx < e);
@@ -1473,6 +1529,7 @@ function changeMatrixPage(delta) {
   const totalPages = Math.max(1, pageSlices.length);
   matrixPage = Math.min(totalPages, Math.max(1, matrixPage + delta));
   renderTableOnly();
+  window.scrollTo(0, 0);
 }
 
 function addColumn() {
@@ -1617,7 +1674,6 @@ function renderTableOnly() {
   notesTh.innerText = 'Notes';
   headerRow.appendChild(notesTh);
 
-  // Render all rows temporarily so we can measure exact rendered row heights on this screen
   tbody.innerHTML = '';
   const allRows = state.dates.map(date => {
     const tr = buildDateRowElement(date);
@@ -1625,12 +1681,10 @@ function renderTableOnly() {
     return tr;
   });
 
-  // Measure available vertical space from tbody top down to above the bottom pill/safe-area
   const tbodyTop = tbody.getBoundingClientRect().top;
-  const bottomReserve = 64; // space for floating pill + bottom margin
+  const bottomReserve = 64;
   const maxBodyHeight = Math.max(240, window.innerHeight - tbodyTop - bottomReserve);
 
-  // Group dates into pages that completely fill maxBodyHeight before starting a new page
   const slices = [];
   let startIdx = 0;
   let currentHeight = 0;
