@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Iqra's Productivity Matrix</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" id="metaThemeColor" content="#ffffff">
 <style>
   :root {
@@ -19,6 +21,7 @@
     --accent: #0f172a;
     --accent-text: #ffffff;
     --date-bg: #ffffff;
+    --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   }
 
   /* Sticky Note Light Yellow Theme */
@@ -33,35 +36,59 @@
     --accent: #a16207;
     --accent-text: #ffffff;
     --date-bg: #fefce8;
+    --card-shadow: 0 1px 3px rgba(66, 32, 6, 0.05);
   }
 
-  /* Dark Mode Theme */
+  /* Rich Obsidian-Slate Dark Mode Theme */
   body[data-theme="dark"] {
-    --bg: #0b1120;
-    --sidebar: #111827;
-    --surface: #1e293b;
-    --subtle: #1e293b;
-    --border: #334155;
-    --text: #f1f5f9;
-    --muted: #94a3b8;
-    --accent: #38bdf8;
-    --accent-text: #0f172a;
-    --date-bg: #111827;
+    --bg: #090d16;
+    --sidebar: #0e1422;
+    --surface: #131c2e;
+    --subtle: #19243a;
+    --border: #26334d;
+    --text: #e2e8f0;
+    --muted: #8b9bb4;
+    --accent: #60a5fa;
+    --accent-text: #071120;
+    --date-bg: #0f1729;
+    --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.32);
+    color-scheme: dark;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  html, body {
+  html {
     background: var(--bg);
     color: var(--text);
+    overflow-x: clip;
+    margin: 0;
+    padding: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: -60px;
+    left: 0;
+    right: 0;
+    height: calc(60px + env(safe-area-inset-top, 0px));
+    background: var(--bg);
+    z-index: 9999;
+    pointer-events: none;
+    transition: background 0.2s ease;
   }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     margin: 0;
+    padding: 0;
     display: flex;
     min-height: 100vh;
     min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: clip;
     transition: background 0.2s ease, color 0.2s ease;
   }
 
@@ -83,7 +110,9 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
+    background: rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     z-index: 95;
   }
   .sidebar-backdrop.active { display: block; }
@@ -93,7 +122,7 @@
     width: 310px;
     background: var(--sidebar);
     border-right: 1px solid var(--border);
-    padding: calc(16px + env(safe-area-inset-top)) 14px 48px;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 48px;
     transition: margin-left 0.25s ease, transform 0.25s ease, background 0.2s ease;
     flex-shrink: 0;
     height: 100vh;
@@ -134,6 +163,7 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 12px;
+    box-shadow: var(--card-shadow);
   }
 
   .side-box h4 {
@@ -146,28 +176,83 @@
 
   .side-input {
     width: 100%;
-    padding: 7px 10px;
+    padding: 8px 10px;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
     font-size: 15px;
     margin-bottom: 8px;
     background: var(--bg);
     color: var(--text);
+    outline: none;
+  }
+  .side-input:focus {
+    border-color: var(--accent);
+  }
+
+  /* Custom D/M/YYYY Log Date Field with Integrated Calendar Picker */
+  .dmy-date-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  .dmy-date-field input[type="text"] {
+    width: 100%;
+    padding: 8px 36px 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+  }
+  .dmy-date-field input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+  .dmy-picker-trigger {
+    position: absolute;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .dmy-picker-trigger:hover {
+    background: var(--subtle);
+    color: var(--text);
+  }
+  .dmy-picker-trigger input[type="date"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
   }
 
   .btn {
     width: 100%;
-    padding: 7px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
     background: var(--surface);
     color: var(--text);
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
     text-align: center;
+    transition: filter 0.15s ease, transform 0.1s ease;
   }
-  .btn:hover:not(:disabled) { filter: brightness(0.96); }
+  .btn:hover:not(:disabled) { filter: brightness(1.06); }
+  body:not([data-theme="dark"]) .btn:hover:not(:disabled) { filter: brightness(0.96); }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
   .btn-primary {
     background: var(--accent);
@@ -182,6 +267,7 @@
     border-radius: 10px;
     overflow: hidden;
     flex-shrink: 0;
+    box-shadow: var(--card-shadow);
   }
   .acc-btn {
     width: 100%;
@@ -212,6 +298,7 @@
   .bar-label { width: 74px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bar-track { flex: 1; height: 10px; background: var(--subtle); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
   .bar-fill { height: 100%; background: #22c55e; transition: width 0.3s; }
+  body[data-theme="dark"] .bar-fill { background: #34d399; }
 
   /* Long Term Goals Sidebar List */
   .goal-side-row {
@@ -251,7 +338,7 @@
     cursor: pointer;
     white-space: nowrap;
   }
-  .goal-open-pill:hover { filter: brightness(0.95); }
+  .goal-open-pill:hover { filter: brightness(1.08); }
 
   /* 4-Tier Monthly Overview */
   .month-nav {
@@ -330,7 +417,14 @@
   .col-manage-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
 
   /* Main Area */
-  .main { flex: 1; padding: 20px 28px 72px; overflow-x: auto; min-width: 0; }
+  .main {
+    flex: 1;
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 28px 76px;
+    overflow-x: auto;
+    min-width: 0;
+    background: var(--bg);
+    transition: background 0.2s ease;
+  }
   .top-bar {
     display: flex;
     align-items: center;
@@ -342,28 +436,28 @@
   .toggle-btn {
     padding: 6px 12px;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
     background: var(--surface);
     color: var(--text);
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
   }
-  .toggle-btn:hover:not(:disabled) { filter: brightness(0.96); }
+  .toggle-btn:hover:not(:disabled) { background: var(--subtle); }
   .toggle-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
   .format-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .format-tools button {
     padding: 6px 10px;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
     background: var(--surface);
     color: var(--text);
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
   }
-  .format-tools button:hover { filter: brightness(0.96); }
+  .format-tools button:hover { background: var(--subtle); }
 
   /* Locked Non-Editable Main Title (Editable only inside Customize Matrix menu) */
   .page-title {
@@ -372,14 +466,16 @@
     margin: 0 0 18px 0;
     padding: 2px 4px;
     user-select: none;
+    letter-spacing: -0.02em;
   }
 
   /* Clean Matrix Table */
   .table-wrap {
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     overflow-x: auto;
     background: var(--surface);
+    box-shadow: var(--card-shadow);
   }
   table { width: 100%; border-collapse: collapse; }
   th, td {
@@ -392,8 +488,14 @@
   th { font-size: 13px; font-weight: 700; text-align: left; }
 
   /* Theme-adapted cell overlay for Dark & Yellow themes */
-  body[data-theme="dark"] th,
-  body[data-theme="dark"] td.themed-cell,
+  body[data-theme="dark"] th {
+    background-color: #162033 !important;
+    color: #f1f5f9 !important;
+  }
+  body[data-theme="dark"] td.themed-cell {
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+  }
   body[data-theme="yellow"] th,
   body[data-theme="yellow"] td.themed-cell {
     background-color: var(--surface) !important;
@@ -401,13 +503,20 @@
   }
 
   .date-cell {
-    min-width: 125px;
-    width: 125px;
+    min-width: 145px;
+    width: 145px;
     font-weight: 700;
     font-size: 13px;
     background: var(--date-bg) !important;
     color: var(--text) !important;
     white-space: nowrap;
+  }
+  .weekday-sub {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-left: 5px;
   }
   .del-date {
     float: right;
@@ -418,7 +527,7 @@
     background: none;
     padding: 0 4px;
   }
-  .del-date:hover { color: #ef4444; }
+  .del-date:hover { color: #f87171; }
 
   .cell-top {
     display: flex;
@@ -431,7 +540,7 @@
   .status-btn {
     width: 20px;
     height: 20px;
-    border-radius: 4px;
+    border-radius: 5px;
     border: 1.5px solid var(--muted);
     display: inline-flex;
     align-items: center;
@@ -464,8 +573,8 @@
   .sub-item { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; }
   .sub-text { flex: 1; outline: none; line-height: 1.4; word-break: break-word; }
   .sub-text.done { text-decoration: line-through; opacity: 0.6; }
-  .sub-text.cross { color: #ef4444; text-decoration: line-through; }
-  .sub-text.orange { color: #ea580c; text-decoration: line-through; opacity: 0.78; }
+  .sub-text.cross { color: #f87171; text-decoration: line-through; }
+  .sub-text.orange { color: #fb923c; text-decoration: line-through; opacity: 0.82; }
 
   .add-sub {
     font-size: 11.5px;
@@ -481,10 +590,10 @@
   .notes-box { min-height: 60px; font-size: 13px; line-height: 1.5; outline: none; }
   .notes-box:empty:before { content: "Write notes..."; color: var(--muted); }
 
-  /* Floating Bottom Pill for Page Navigation (Clean iPhone & Mac Docked Pill) */
+  /* Floating Bottom Pill for Page Navigation (Matrix) */
   .floating-page-pill {
     position: fixed;
-    bottom: calc(14px + env(safe-area-inset-bottom));
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 80;
@@ -496,7 +605,7 @@
     border: 1px solid var(--border);
     border-radius: 999px;
     padding: 6px 10px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
@@ -531,14 +640,43 @@
     white-space: nowrap;
   }
 
-  /* Dedicated Sub-Pages (Declutter, Timeline, Goal Action Plan) */
+  /* Inline Subpage Pager Bar */
+  .subpage-pager {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .subpage-pager button {
+    border: 1px solid var(--border);
+    background: var(--subtle);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .subpage-pager button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* Dedicated Sub-Pages */
   .subpage-card {
     display: none;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 22px 24px;
-    max-width: 840px;
+    max-width: 920px;
+    box-shadow: var(--card-shadow);
   }
   .subpage-card.active { display: block; }
   .subpage-header {
@@ -556,19 +694,39 @@
   .declutter-input-row {
     display: flex;
     gap: 8px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
-    align-items: stretch;
+    align-items: center;
   }
-  .declutter-input-row input {
-    padding: 10px 12px;
+  .declutter-input-row input[type="date"] {
+    padding: 9px 10px;
     border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text);
-    font-size: 16px;
+    font-size: 14px;
     outline: none;
   }
+
+  /* Simple User-Friendly Time Input (e.g. 10:00 - 11:30) */
+  .tl-time-text-input {
+    width: 158px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .tl-time-text-input:focus {
+    border-color: var(--accent);
+  }
+  .tl-time-text-input::placeholder {
+    color: var(--muted);
+  }
+
   /* Rich Contenteditable Input Box for Highlight / Underline / Emoji support */
   .rich-input-box {
     flex: 1;
@@ -583,6 +741,9 @@
     line-height: 1.4;
     outline: none;
     word-break: break-word;
+  }
+  .rich-input-box:focus {
+    border-color: var(--accent);
   }
   .rich-input-box:empty:before {
     content: attr(data-placeholder);
@@ -600,8 +761,7 @@
   }
   .declutter-bullet-item {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    align-items: center;
     gap: 10px;
     padding: 10px 12px;
     border-radius: 8px;
@@ -610,16 +770,29 @@
     font-size: 15px;
     line-height: 1.45;
   }
-  .declutter-bullet-strike-btn {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 5px;
+  .dym-line-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
     flex-shrink: 0;
+  }
+  .dym-line-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .declutter-bullet-item.struck .dym-line-btn {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
   }
   .declutter-bullet-text {
     flex: 1;
@@ -636,11 +809,133 @@
     opacity: 0.52;
   }
 
-  /* Timeline Table */
+  /* Compact Expandable "Your Calendar" Chip & Drawer inside Timeline */
+  .your-cal-bar {
+    margin-bottom: 14px;
+  }
+  .your-cal-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--subtle);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .your-cal-chip.open {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+  }
+  .timeline-cal-drawer {
+    display: none;
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 10px;
+    max-width: 390px;
+  }
+  .timeline-cal-drawer.open {
+    display: block;
+  }
+  .tl-cal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .tl-cal-title {
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .tl-cal-nav {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tl-cal-nav button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .tl-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .tl-cal-dow {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--muted);
+  }
+  .tl-cal-day {
+    height: 32px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+  }
+  .tl-cal-day.empty {
+    background: transparent;
+    border-color: transparent;
+    cursor: default;
+  }
+  .tl-cal-day.has-event {
+    color: #0f172a;
+    border-color: rgba(15, 23, 42, 0.2);
+  }
+  .tl-cal-day.selected-day {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .tl-event-names-footer {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tl-event-only-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+  }
+  .tl-time-badge {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.78;
+  }
+
   .timeline-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 8px;
+    margin-top: 4px;
   }
   .timeline-table th, .timeline-table td {
     min-width: 0;
@@ -658,8 +953,8 @@
   }
   .tl-crossed {
     text-decoration: line-through;
-    color: #ef4444;
-    opacity: 0.72;
+    color: #f87171;
+    opacity: 0.75;
   }
   .tl-done {
     text-decoration: line-through;
@@ -703,7 +998,7 @@
     font-weight: 800;
   }
   .goal-task-label.is-done { text-decoration: line-through; opacity: 0.6; }
-  .goal-task-label.is-irrelevant { text-decoration: line-through; color: #ea580c; opacity: 0.78; }
+  .goal-task-label.is-irrelevant { text-decoration: line-through; color: #fb923c; opacity: 0.82; }
   .goal-task-detail {
     width: 100%;
     min-height: 48px;
@@ -730,6 +1025,7 @@
     gap: 8px;
     font-size: 12px;
     color: var(--muted);
+    flex-wrap: wrap;
   }
   .goal-task-footer input[type="date"] {
     background: var(--surface);
@@ -740,8 +1036,105 @@
     font-size: 13px;
   }
 
- @media (max-width: 768px) {
-    body { overflow-x: hidden; }
+  /* Dive Into Blocks Grid & Detail View */
+  .dive-spaces-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .dive-folder-card {
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 112px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    border: 1.5px solid rgba(15, 23, 42, 0.14);
+    color: #0f172a;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    position: relative;
+  }
+  body[data-theme="dark"] .dive-folder-card {
+    color: #0f172a;
+    border: 1.5px solid rgba(147, 197, 253, 0.55);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  }
+  body[data-theme="dark"] .dive-folder-card:hover {
+    border-color: #93c5fd;
+    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.22);
+  }
+  body[data-theme="yellow"] .dive-folder-card {
+    color: #422006;
+    border-color: rgba(66, 32, 6, 0.18);
+  }
+  .dive-folder-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  }
+  .dive-del-corner {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    border: none;
+    background: none;
+    color: inherit;
+    opacity: 0.6;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 2px 5px;
+  }
+  .dive-del-corner:hover { opacity: 1; color: #dc2626; }
+  .dive-folder-name {
+    font-size: 16px;
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .dive-split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .dive-panel {
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .dive-panel h3 {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    font-weight: 800;
+  }
+  .dive-item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .dive-item-text {
+    flex: 1;
+    outline: none;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .dive-done-badge {
+    font-size: 12px;
+    font-weight: 800;
+    color: #22c55e;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    body { overflow-x: clip; }
     .sidebar {
       position: fixed;
       left: 0;
@@ -750,17 +1143,22 @@
       height: 100dvh;
       width: 85vw;
       max-width: 310px;
-      padding-top: calc(16px + env(safe-area-inset-top));
-      box-shadow: 4px 0 20px rgba(0,0,0,0.22);
+      padding-top: calc(16px + env(safe-area-inset-top, 0px));
+      box-shadow: 4px 0 24px rgba(0,0,0,0.35);
       transition: transform 0.25s ease;
     }
     .sidebar.closed { margin-left: 0; transform: translateX(-100%); }
-    .main { padding: calc(14px + env(safe-area-inset-top)) 12px 72px; width: 100%; }
+    .main {
+      padding: calc(14px + env(safe-area-inset-top, 0px)) 12px 76px;
+      width: 100%;
+    }
     .page-title { font-size: 20px; margin-bottom: 12px; }
     th, td { min-width: 180px; padding: 8px; }
-    .date-cell { min-width: 105px; width: 105px; font-size: 12px; position: sticky; left: 0; z-index: 3; }
+    .date-cell { min-width: 128px; width: 128px; font-size: 12px; position: sticky; left: 0; z-index: 3; }
     .status-btn { width: 24px; height: 24px; }
     .subpage-card { padding: 16px 14px; }
+    .dive-split-grid { grid-template-columns: 1fr; }
+    .timeline-cal-drawer { max-width: 100%; }
   }
 </style>
 </head>
@@ -776,10 +1174,16 @@
     <button class="toggle-btn" onclick="closeSidebar()" style="padding: 4px 10px; font-size: 12px;">✕ Close Menu</button>
   </div>
 
-  <!-- 1. Log Date -->
+  <!-- 1. Log Date (Direct D/M/YYYY Format + Calendar Picker) -->
   <div class="side-box">
     <h4>📅 Log Date</h4>
-    <input type="date" id="dateInput" class="side-input">
+    <div class="dmy-date-field">
+      <input type="text" id="dateDmyInput" inputmode="numeric" placeholder="D/M/YYYY" oninput="onDmyTextInput(this.value)" onblur="normalizeDmyInputBlur()">
+      <span class="dmy-picker-trigger" title="Pick date">
+        📅
+        <input type="date" id="dateInput" onchange="onNativeDatePicked(this.value)">
+      </span>
+    </div>
     <button class="btn btn-primary" onclick="addDateRow()">+ Add Date to Table</button>
   </div>
 
@@ -836,7 +1240,15 @@
     </button>
   </div>
 
-  <!-- 6. Your Long Term Goals -->
+  <!-- 6. Dive Into -->
+  <div class="acc-card">
+    <button class="acc-btn" onclick="openSubpage('diveInto')">
+      <span>🗂️ Dive Into</span>
+      <span style="font-size:11px; color:var(--muted);">Open →</span>
+    </button>
+  </div>
+
+  <!-- 7. Your Long Term Goals -->
   <div class="acc-card" id="acc-goals">
     <button class="acc-btn" onclick="toggleAccordion('acc-goals')">
       <span>🎯 Your Long Term Goals</span>
@@ -848,7 +1260,7 @@
     </div>
   </div>
 
-  <!-- 7. Your Goals Overview (Right under Long Term Goals) -->
+  <!-- 8. Your Goals Overview (Right under Long Term Goals) -->
   <div class="acc-card" id="acc-goals-overview">
     <button class="acc-btn" onclick="toggleAccordion('acc-goals-overview')">
       <span>📈 Your Goals Overview</span>
@@ -859,7 +1271,7 @@
     </div>
   </div>
 
-  <!-- 8. Customize Matrix -->
+  <!-- 9. Customize Matrix -->
   <div class="acc-card" id="acc-customize">
     <button class="acc-btn" onclick="toggleAccordion('acc-customize')">
       <span>⚙️ Customize Matrix</span>
@@ -884,7 +1296,7 @@
 </aside>
 
 <!-- Main Workspace -->
-<main class="main">
+<main class="main" id="mainWorkspace">
   <div class="top-bar">
     <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu & Dashboard</button>
     <div class="format-tools">
@@ -924,25 +1336,50 @@
       <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addDeclutterBullet()">+ Add</button>
     </div>
     <ul class="declutter-bullets" id="declutterList"></ul>
+    <div class="subpage-pager" id="dymPager"></div>
   </section>
 
-  <!-- View 3: Your Upcoming Timeline Page (Auto-Sorted Chronologically) -->
+  <!-- View 3: Your Upcoming Timeline Page -->
   <section class="subpage-card" id="timelineView">
     <div class="subpage-header">
       <h2>⏳ Your Upcoming Timeline</h2>
       <button class="toggle-btn" onclick="openSubpage('matrix')">← Back to Matrix</button>
     </div>
+
     <div class="declutter-input-row">
-      <input type="date" id="tlDateInput" style="max-width: 170px;">
+      <input type="date" id="tlDateInput">
+      <input type="text" id="tlTimeTextInput" class="tl-time-text-input" placeholder="Time (e.g. 10:00 - 11:30)" onkeydown="if(event.key==='Enter'){ event.preventDefault(); addTimelineItem(); }">
       <div id="tlActivityInput" class="rich-input-box" contenteditable="true" data-placeholder="Activity or event to attend..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); addTimelineItem(); }"></div>
       <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addTimelineItem()">+ Add</button>
     </div>
+
+    <!-- Compact Expandable "Your Calendar" -->
+    <div class="your-cal-bar">
+      <button type="button" class="your-cal-chip" id="yourCalendarChip" onclick="toggleYourCalendar()">
+        <span>🗓️</span>
+        <span>Your Calendar</span>
+      </button>
+
+      <div class="timeline-cal-drawer" id="timelineCalDrawer">
+        <div class="tl-cal-top">
+          <div class="tl-cal-title" id="tlCalMonthLabel"></div>
+          <div class="tl-cal-nav">
+            <button type="button" onclick="shiftTimelineCal(-1)">‹</button>
+            <button type="button" onclick="shiftTimelineCal(1)">›</button>
+          </div>
+        </div>
+        <div class="tl-cal-grid" id="tlCalendarGrid"></div>
+        <div class="tl-event-names-footer" id="tlSelectedEventsBox" style="display:none;"></div>
+      </div>
+    </div>
+
     <div style="overflow-x:auto;">
       <table class="timeline-table">
         <thead>
           <tr>
             <th style="width:44px; text-align:center;">Status</th>
-            <th style="width:130px;">Date</th>
+            <th style="width:140px;">Date</th>
+            <th style="width:130px;">Time</th>
             <th>Activity</th>
             <th style="width:44px;"></th>
           </tr>
@@ -950,6 +1387,7 @@
         <tbody id="timelineBody"></tbody>
       </table>
     </div>
+    <div class="subpage-pager" id="timelinePager"></div>
   </section>
 
   <!-- View 4: Goal Action Plan Page -->
@@ -964,14 +1402,117 @@
     </div>
     <div id="goalTasksContainer"></div>
   </section>
+
+  <!-- View 5: Dive Into Blocks Overview Page -->
+  <section class="subpage-card" id="diveIntoView">
+    <div class="subpage-header">
+      <h2>🗂️ Dive Into</h2>
+      <button class="toggle-btn" onclick="openSubpage('matrix')">← Back to Matrix</button>
+    </div>
+    <div class="declutter-input-row">
+      <input type="text" id="diveSpaceNameInput" class="rich-input-box" style="flex:1; min-width:180px;" placeholder="Study, Work, Hobbies.." onkeydown="if(event.key==='Enter'){ event.preventDefault(); addDiveSpace(); }">
+      <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addDiveSpace()">Add Block</button>
+    </div>
+    <div class="dive-spaces-grid" id="diveSpacesGrid"></div>
+    <div class="subpage-pager" id="diveSpacesPager"></div>
+  </section>
+
+  <!-- View 6: Individual Dive Into Block Detail Page -->
+  <section class="subpage-card" id="diveSpaceDetailView">
+    <div class="subpage-header">
+      <h2 id="diveSpaceDetailTitle">Block</h2>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="toggle-btn" onclick="openSubpage('diveInto')">← Dive Into</button>
+        <button class="toggle-btn" onclick="openSubpage('matrix')">Matrix</button>
+      </div>
+    </div>
+
+    <div class="dive-split-grid">
+      <!-- Left: To Be Completed -->
+      <div class="dive-panel">
+        <h3>To Be Completed</h3>
+        <div class="declutter-input-row" style="margin-bottom:12px;">
+          <div id="diveTbcInput" class="rich-input-box" contenteditable="true" data-placeholder="Add task..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); addDiveTbcItem(); }"></div>
+          <button class="btn btn-primary" style="width:auto; padding:0 14px;" onclick="addDiveTbcItem()">+ Add</button>
+        </div>
+        <div id="diveTbcList"></div>
+        <div class="subpage-pager" id="diveTbcPager"></div>
+      </div>
+
+      <!-- Right: Already Done -->
+      <div class="dive-panel">
+        <h3>Already Done</h3>
+        <div class="declutter-input-row" style="margin-bottom:12px;">
+          <div id="diveCompletedInput" class="rich-input-box" contenteditable="true" data-placeholder="Finished something? Add it" onkeydown="if(event.key==='Enter'){ event.preventDefault(); addDiveCompletedDirect(); }"></div>
+          <button class="btn btn-primary" style="width:auto; padding:0 14px;" onclick="addDiveCompletedDirect()">+ Add</button>
+        </div>
+        <div id="diveCompletedList"></div>
+        <div class="subpage-pager" id="diveDonePager"></div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script>
-const TODAY = new Date().toISOString().split('T')[0];
+function getLocalTodayISO() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+const TODAY = getLocalTodayISO();
+const WEEKDAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const DIVE_PALETTE = [
+  '#dbeafe',
+  '#dcfce7',
+  '#fae8ff',
+  '#ffedd5',
+  '#e0f2fe',
+  '#fce7f3'
+];
+
+/* Light, clean shades of blue compatible with Dark Theme */
+const DIVE_DARK_PALETTE = [
+  '#dbeafe',
+  '#cfe3ff',
+  '#e0f2fe',
+  '#d4e6ff',
+  '#cbe0fd',
+  '#e2edff'
+];
+
+const TIMELINE_EVENT_COLORS = [
+  '#bae6fd',
+  '#bbf7d0',
+  '#fed7aa',
+  '#ddd6fe',
+  '#fbcfe8',
+  '#fde68a'
+];
+
+const SUBPAGE_SIZE = 8;
+const DIVE_BLOCK_PAGE_SIZE = 8;
+
 let viewYear = new Date().getFullYear();
 let viewMonth = new Date().getMonth();
+let tlCalYear = new Date().getFullYear();
+let tlCalMonth = new Date().getMonth();
+let yourCalendarOpen = false;
+let selectedTimelineDate = null;
+let selectedLogDateISO = TODAY;
+
+let dymPage = 1;
+let timelinePage = 1;
+let diveSpacesPage = 1;
+let diveTbcPage = 1;
+let diveDonePage = 1;
+
 let currentView = 'matrix';
 let activeGoalId = null;
+let activeDiveSpaceId = null;
 let matrixPage = 1;
 let pageSlices = [];
 
@@ -989,7 +1530,8 @@ const DEFAULT_DATA = {
   notes: {},
   braindump: [],
   timeline: [],
-  goals: []
+  goals: [],
+  diveSpaces: []
 };
 
 function normalizeState(rawObj) {
@@ -1001,6 +1543,24 @@ function normalizeState(rawObj) {
   if (!Array.isArray(merged.braindump)) merged.braindump = [];
   if (!Array.isArray(merged.timeline)) merged.timeline = [];
   if (!Array.isArray(merged.goals)) merged.goals = [];
+  if (!Array.isArray(merged.diveSpaces)) merged.diveSpaces = [];
+
+  merged.timeline = merged.timeline.map((ev, idx) => ({
+    id: ev.id || ('tl' + idx + '_' + Date.now()),
+    date: ev.date || TODAY,
+    time: typeof ev.time === 'string' ? ev.time : '',
+    endTime: typeof ev.endTime === 'string' ? ev.endTime : '',
+    activity: ev.activity || '',
+    status: Number(ev.status) || 0
+  }));
+
+  merged.diveSpaces = merged.diveSpaces.map((sp, idx) => ({
+    id: sp.id || ('ds' + idx + '_' + Date.now()),
+    name: sp.name || ('Block ' + (idx + 1)),
+    color: sp.color || DIVE_PALETTE[idx % DIVE_PALETTE.length],
+    tbc: Array.isArray(sp.tbc) ? sp.tbc : [],
+    completed: Array.isArray(sp.completed) ? sp.completed : []
+  }));
 
   const validDates = Array.isArray(merged.dates)
     ? merged.dates
@@ -1015,14 +1575,78 @@ function normalizeState(rawObj) {
 let state = normalizeState(JSON.parse(localStorage.getItem('iqraMatrixCleanV1')));
 let undoStack = [];
 
-document.getElementById('dateInput').value = TODAY;
-document.getElementById('tlDateInput').value = TODAY;
-
 function formatDateDMY(isoStr) {
-  const clean = String(isoStr).split('_')[0];
+  const clean = String(isoStr || '').split('_')[0];
   const parts = clean.split('-');
   if (parts.length !== 3) return clean;
   return `${Number(parts[2])}/${Number(parts[1])}/${parts[0]}`;
+}
+
+function parseDmyToISO(dmyStr) {
+  const cleaned = String(dmyStr || '').trim().replace(/[.\-]/g, '/');
+  const m = cleaned.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return null;
+  const day = Number(m[1]);
+  const month = Number(m[2]);
+  const year = Number(m[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  const dt = new Date(year, month - 1, day);
+  if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) return null;
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function setLogDateControls(isoDate) {
+  selectedLogDateISO = isoDate || TODAY;
+  const nativeEl = document.getElementById('dateInput');
+  const textEl = document.getElementById('dateDmyInput');
+  if (nativeEl) nativeEl.value = selectedLogDateISO;
+  if (textEl) textEl.value = formatDateDMY(selectedLogDateISO);
+}
+
+function onNativeDatePicked(isoVal) {
+  if (!isoVal) return;
+  setLogDateControls(isoVal);
+}
+
+function onDmyTextInput(val) {
+  const parsed = parseDmyToISO(val);
+  if (parsed) {
+    selectedLogDateISO = parsed;
+    const nativeEl = document.getElementById('dateInput');
+    if (nativeEl) nativeEl.value = parsed;
+  }
+}
+
+function normalizeDmyInputBlur() {
+  const textEl = document.getElementById('dateDmyInput');
+  if (!textEl) return;
+  const parsed = parseDmyToISO(textEl.value);
+  if (parsed) {
+    setLogDateControls(parsed);
+  } else {
+    setLogDateControls(selectedLogDateISO || TODAY);
+  }
+}
+
+setLogDateControls(TODAY);
+document.getElementById('tlDateInput').value = TODAY;
+
+function getWeekdayShort(isoStr) {
+  const clean = String(isoStr || '').split('_')[0];
+  const parts = clean.split('-').map(Number);
+  if (parts.length !== 3) return '';
+  const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+  if (Number.isNaN(dt.getTime())) return '';
+  return WEEKDAYS_SHORT[dt.getDay()];
+}
+
+function formatEventTimeDisplay(ev) {
+  const start = (ev.time || '').trim();
+  const end = (ev.endTime || '').trim();
+  if (start && end) return `${start} – ${end}`;
+  if (start) return start;
+  if (end) return end;
+  return '';
 }
 
 function pushUndo() {
@@ -1068,7 +1692,7 @@ function applyTheme() {
   document.body.setAttribute('data-theme', t);
   const metaColor = document.getElementById('metaThemeColor');
   if (metaColor) {
-    metaColor.setAttribute('content', t === 'dark' ? '#0b1120' : t === 'yellow' ? '#fef9c3' : '#ffffff');
+    metaColor.setAttribute('content', t === 'dark' ? '#090d16' : t === 'yellow' ? '#fef9c3' : '#ffffff');
   }
   ['white', 'yellow', 'dark'].forEach(name => {
     const btn = document.getElementById('theme-' + name);
@@ -1081,6 +1705,7 @@ function setTheme(t) {
   state.theme = t;
   save();
   renderTableOnly();
+  if (currentView === 'diveInto') renderDiveSpacesGrid();
 }
 
 /* Sidebar Open / Close & Mobile Swipe Gestures */
@@ -1163,21 +1788,33 @@ function toggleAccordion(id) {
 }
 
 /* Sub-Page Navigation */
-function openSubpage(viewName, goalId = null) {
+function openSubpage(viewName, extraId = null) {
   currentView = viewName;
-  if (goalId) activeGoalId = goalId;
+  if (viewName === 'goalPlan' && extraId) activeGoalId = extraId;
+  if (viewName === 'diveSpaceDetail' && extraId) {
+    activeDiveSpaceId = extraId;
+    diveTbcPage = 1;
+    diveDonePage = 1;
+  }
+  if (viewName === 'timeline') {
+    selectedTimelineDate = null;
+  }
 
   document.getElementById('matrixView').style.display = (viewName === 'matrix') ? 'block' : 'none';
   document.getElementById('declutterView').classList.toggle('active', viewName === 'declutter');
   document.getElementById('timelineView').classList.toggle('active', viewName === 'timeline');
   document.getElementById('goalPlanView').classList.toggle('active', viewName === 'goalPlan');
+  document.getElementById('diveIntoView').classList.toggle('active', viewName === 'diveInto');
+  document.getElementById('diveSpaceDetailView').classList.toggle('active', viewName === 'diveSpaceDetail');
 
   if (viewName === 'matrix') renderTableOnly();
   else updateFloatingPaginationVisibility();
 
   if (viewName === 'declutter') renderDeclutterList();
-  if (viewName === 'timeline') renderTimelineTable();
+  if (viewName === 'timeline') renderTimelineSection();
   if (viewName === 'goalPlan') renderGoalActionPlan();
+  if (viewName === 'diveInto') renderDiveSpacesGrid();
+  if (viewName === 'diveSpaceDetail') renderDiveSpaceDetail();
 
   if (window.innerWidth <= 768) closeSidebar();
   window.scrollTo(0, 0);
@@ -1197,11 +1834,33 @@ function updateFloatingPaginationVisibility() {
   }
 }
 
-function escapeHtml(str) {
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function renderInlinePager(containerId, currentPage, totalItems, pageSize, onPageChangeFnName) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  if (totalPages <= 1) {
+    el.innerHTML = '';
+    return;
+  }
+  const safePage = Math.min(totalPages, Math.max(1, currentPage));
+  el.innerHTML = `
+    <button type="button" onclick="${onPageChangeFnName}(${safePage - 1})" ${safePage <= 1 ? 'disabled' : ''}>‹</button>
+    <span>${safePage} / ${totalPages}</span>
+    <button type="button" onclick="${onPageChangeFnName}(${safePage + 1})" ${safePage >= totalPages ? 'disabled' : ''}>›</button>
+  `;
 }
 
-/* Declutter Your Mind (Supports Rich Highlight, Underline & Exclamation Mark) */
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function stripHtmlToText(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').trim();
+}
+
+/* Declutter Your Mind */
 function addDeclutterBullet() {
   const inp = document.getElementById('declutterInput');
   const plain = inp.innerText.trim();
@@ -1209,6 +1868,7 @@ function addDeclutterBullet() {
   if (!plain) return;
   pushUndo();
   state.braindump.unshift({ text: html, struck: false });
+  dymPage = 1;
   inp.innerHTML = '';
   save();
   renderDeclutterList();
@@ -1236,35 +1896,65 @@ function deleteDeclutterBullet(idx) {
   renderDeclutterList();
 }
 
+function setDymPage(p) {
+  dymPage = p;
+  renderDeclutterList();
+}
+
 function renderDeclutterList() {
   const ul = document.getElementById('declutterList');
   if (!state.braindump.length) {
-    ul.innerHTML = `<li style="color:var(--muted); font-size:14px;">Nothing written yet. Type a bullet point above to clear your head.</li>`;
+    ul.innerHTML = '';
+    renderInlinePager('dymPager', 1, 0, SUBPAGE_SIZE, 'setDymPage');
     return;
   }
-  ul.innerHTML = state.braindump.map((item, idx) => `
-    <li class="declutter-bullet-item ${item.struck ? 'struck' : ''}">
-      <div class="declutter-bullet-text" contenteditable="true" onblur="editDeclutterBullet(${idx}, this.innerHTML)">${item.text}</div>
-      <button class="declutter-bullet-strike-btn" onclick="toggleDeclutterBullet(${idx})" title="Cross out / restore">${item.struck ? 'Undo' : 'Cross'}</button>
-      <button class="del-date" style="float:none;" onclick="deleteDeclutterBullet(${idx})" title="Delete">×</button>
-    </li>
-  `).join('');
+  const totalPages = Math.max(1, Math.ceil(state.braindump.length / SUBPAGE_SIZE));
+  if (dymPage > totalPages) dymPage = totalPages;
+  const start = (dymPage - 1) * SUBPAGE_SIZE;
+  const slice = state.braindump.slice(start, start + SUBPAGE_SIZE);
+
+  ul.innerHTML = slice.map((item, offsetIdx) => {
+    const idx = start + offsetIdx;
+    return `
+      <li class="declutter-bullet-item ${item.struck ? 'struck' : ''}">
+        <div class="declutter-bullet-text" contenteditable="true" onblur="editDeclutterBullet(${idx}, this.innerHTML)">${item.text}</div>
+        <button type="button" class="dym-line-btn" onclick="toggleDeclutterBullet(${idx})" title="${item.struck ? 'Restore' : 'Line through'}">${item.struck ? '↺' : '—'}</button>
+        <button type="button" class="del-date" style="float:none;" onclick="deleteDeclutterBullet(${idx})" title="Delete">×</button>
+      </li>
+    `;
+  }).join('');
+
+  renderInlinePager('dymPager', dymPage, state.braindump.length, SUBPAGE_SIZE, 'setDymPage');
 }
 
-/* Your Upcoming Timeline (Always sorted chronologically + Rich Formatting) */
+/* Your Upcoming Timeline + Expandable "Your Calendar" */
 function addTimelineItem() {
   const d = document.getElementById('tlDateInput').value;
+  const timeText = (document.getElementById('tlTimeTextInput').value || '').trim();
   const inp = document.getElementById('tlActivityInput');
   const plain = inp.innerText.trim();
   const html = inp.innerHTML.trim();
   if (!d || !plain) return;
 
   pushUndo();
-  state.timeline.push({ id: 'tl' + Date.now(), date: d, activity: html, status: 0 });
-  state.timeline.sort((a, b) => a.date.localeCompare(b.date));
+  state.timeline.push({
+    id: 'tl' + Date.now(),
+    date: d,
+    time: timeText,
+    endTime: '',
+    activity: html,
+    status: 0
+  });
+  state.timeline.sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''));
+  const parts = d.split('-').map(Number);
+  if (parts.length === 3) {
+    tlCalYear = parts[0];
+    tlCalMonth = parts[1] - 1;
+  }
   inp.innerHTML = '';
+  document.getElementById('tlTimeTextInput').value = '';
   save();
-  renderTimelineTable();
+  renderTimelineSection();
 }
 
 function toggleTimelineStatus(id) {
@@ -1273,7 +1963,7 @@ function toggleTimelineStatus(id) {
   pushUndo();
   item.status = ((item.status || 0) + 1) % 3;
   save();
-  renderTimelineTable();
+  renderTimelineSection();
 }
 
 function updateTimelineActivity(id, newHtml) {
@@ -1282,42 +1972,163 @@ function updateTimelineActivity(id, newHtml) {
   pushUndo();
   item.activity = newHtml;
   save();
+  renderTimelineCalendar();
 }
 
 function deleteTimelineItem(id) {
   pushUndo();
   state.timeline = state.timeline.filter(x => x.id !== id);
   save();
+  renderTimelineSection();
+}
+
+function toggleYourCalendar() {
+  yourCalendarOpen = !yourCalendarOpen;
+  if (!yourCalendarOpen) selectedTimelineDate = null;
+  syncCalendarDrawerUI();
+  if (yourCalendarOpen) renderTimelineCalendar();
+}
+
+function syncCalendarDrawerUI() {
+  const chip = document.getElementById('yourCalendarChip');
+  const drawer = document.getElementById('timelineCalDrawer');
+  if (chip) chip.classList.toggle('open', yourCalendarOpen);
+  if (drawer) drawer.classList.toggle('open', yourCalendarOpen);
+}
+
+function shiftTimelineCal(delta) {
+  tlCalMonth += delta;
+  if (tlCalMonth < 0) { tlCalMonth = 11; tlCalYear--; }
+  if (tlCalMonth > 11) { tlCalMonth = 0; tlCalYear++; }
+  selectedTimelineDate = null;
+  renderTimelineCalendar();
+}
+
+function selectTimelineCalendarDate(isoDate) {
+  selectedTimelineDate = (selectedTimelineDate === isoDate) ? null : isoDate;
+  renderTimelineCalendar();
+}
+
+function getDateColor(isoDate) {
+  let hash = 0;
+  for (let i = 0; i < isoDate.length; i++) {
+    hash = ((hash << 5) - hash) + isoDate.charCodeAt(i);
+    hash |= 0;
+  }
+  return TIMELINE_EVENT_COLORS[Math.abs(hash) % TIMELINE_EVENT_COLORS.length];
+}
+
+function renderTimelineCalendar() {
+  syncCalendarDrawerUI();
+  if (!yourCalendarOpen) return;
+
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const labelEl = document.getElementById('tlCalMonthLabel');
+  const gridEl = document.getElementById('tlCalendarGrid');
+  const detailBox = document.getElementById('tlSelectedEventsBox');
+  if (!labelEl || !gridEl || !detailBox) return;
+
+  labelEl.textContent = `${monthNames[tlCalMonth]} ${tlCalYear}`;
+
+  const eventsByDate = {};
+  state.timeline.forEach(ev => {
+    if (!eventsByDate[ev.date]) eventsByDate[ev.date] = [];
+    eventsByDate[ev.date].push(ev);
+  });
+
+  const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  let html = dows.map(d => `<div class="tl-cal-dow">${d}</div>`).join('');
+
+  const firstDay = new Date(tlCalYear, tlCalMonth, 1).getDay();
+  const offset = (firstDay + 6) % 7;
+  for (let i = 0; i < offset; i++) {
+    html += `<div class="tl-cal-day empty"></div>`;
+  }
+
+  const daysInMonth = new Date(tlCalYear, tlCalMonth + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dStr = `${tlCalYear}-${String(tlCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dayEvents = eventsByDate[dStr] || [];
+    const hasEv = dayEvents.length > 0;
+    const isSel = selectedTimelineDate === dStr;
+    const bgColor = hasEv ? getDateColor(dStr) : '';
+
+    html += `
+      <button
+        type="button"
+        class="tl-cal-day ${hasEv ? 'has-event' : ''} ${isSel ? 'selected-day' : ''}"
+        style="${hasEv ? `background:${bgColor};` : ''}"
+        onclick="selectTimelineCalendarDate('${dStr}')"
+      >${day}</button>
+    `;
+  }
+  gridEl.innerHTML = html;
+
+  const selEvents = selectedTimelineDate ? (eventsByDate[selectedTimelineDate] || []) : [];
+  if (!selectedTimelineDate || !selEvents.length) {
+    detailBox.style.display = 'none';
+    detailBox.innerHTML = '';
+    return;
+  }
+
+  const badgeColor = getDateColor(selectedTimelineDate);
+  detailBox.style.display = 'flex';
+  detailBox.innerHTML = selEvents.map(ev => {
+    const name = escapeHtml(stripHtmlToText(ev.activity) || 'Event');
+    const timeStr = formatEventTimeDisplay(ev);
+    const timePart = timeStr ? `<span class="tl-time-badge">${escapeHtml(timeStr)}</span>` : '';
+    return `<span class="tl-event-only-pill" style="background:${badgeColor};">${name}${timePart}</span>`;
+  }).join('');
+}
+
+function setTimelinePage(p) {
+  timelinePage = p;
   renderTimelineTable();
 }
 
 function renderTimelineTable() {
   const tbody = document.getElementById('timelineBody');
-  state.timeline.sort((a, b) => a.date.localeCompare(b.date));
+  state.timeline.sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''));
 
   if (!state.timeline.length) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--muted); padding:20px;">No upcoming activities added yet. Pick any date above to schedule one.</td></tr>`;
+    tbody.innerHTML = '';
+    renderInlinePager('timelinePager', 1, 0, SUBPAGE_SIZE, 'setTimelinePage');
     return;
   }
 
-  tbody.innerHTML = state.timeline.map(item => {
+  const totalPages = Math.max(1, Math.ceil(state.timeline.length / SUBPAGE_SIZE));
+  if (timelinePage > totalPages) timelinePage = totalPages;
+  const start = (timelinePage - 1) * SUBPAGE_SIZE;
+  const slice = state.timeline.slice(start, start + SUBPAGE_SIZE);
+
+  tbody.innerHTML = slice.map(item => {
     const sym = item.status === 1 ? '✓' : item.status === 2 ? '✗' : '';
     const cls = item.status === 1 ? 'status-done' : item.status === 2 ? 'status-cross' : '';
     const txtCls = item.status === 1 ? 'tl-done' : item.status === 2 ? 'tl-crossed' : '';
+    const wk = getWeekdayShort(item.date);
+    const timeStr = formatEventTimeDisplay(item);
 
     return `
       <tr>
         <td style="text-align:center;">
-          <span class="status-btn ${cls}" onclick="toggleTimelineStatus('${item.id}')" title="Click: ✓ Done | ✗ Cross">${sym}</span>
+          <span class="status-btn ${cls}" onclick="toggleTimelineStatus('${item.id}')">${sym}</span>
         </td>
-        <td style="font-weight:700; white-space:nowrap;">${formatDateDMY(item.date)}</td>
+        <td style="font-weight:700; white-space:nowrap;">${formatDateDMY(item.date)} <span style="color:var(--muted); font-size:12px;">(${wk})</span></td>
+        <td style="font-size:12px; font-weight:700; color:var(--muted); white-space:nowrap; user-select:none;">${timeStr ? escapeHtml(timeStr) : '—'}</td>
         <td class="${txtCls}" contenteditable="true" onblur="updateTimelineActivity('${item.id}', this.innerHTML)" style="outline:none;">${item.activity}</td>
         <td style="text-align:center;">
-          <button class="del-date" style="float:none;" onclick="deleteTimelineItem('${item.id}')" title="Remove">×</button>
+          <button type="button" class="del-date" style="float:none;" onclick="deleteTimelineItem('${item.id}')" title="Remove">×</button>
         </td>
       </tr>
     `;
   }).join('');
+
+  renderInlinePager('timelinePager', timelinePage, state.timeline.length, SUBPAGE_SIZE, 'setTimelinePage');
+}
+
+function renderTimelineSection() {
+  renderTimelineCalendar();
+  renderTimelineTable();
 }
 
 /* Your Long Term Goals & Goals Overview */
@@ -1362,14 +2173,14 @@ function deleteGoal(goalId) {
 function renderGoalsSidebar() {
   const wrap = document.getElementById('goalsSideList');
   if (!state.goals.length) {
-    wrap.innerHTML = `<div style="font-size:12px; color:var(--muted); margin-bottom:6px;">No goals added yet.</div>`;
+    wrap.innerHTML = '';
     return;
   }
   wrap.innerHTML = state.goals.map(g => `
     <div class="goal-side-row">
       <input class="goal-name-input" type="text" value="${escapeHtml(g.name)}" onchange="renameGoal('${g.id}', this.value)" title="Click to rename goal">
-      <button class="goal-open-pill" onclick="openSubpage('goalPlan', '${g.id}')">Open</button>
-      <button class="del-date" style="float:none;" onclick="deleteGoal('${g.id}')" title="Delete goal">×</button>
+      <button type="button" class="goal-open-pill" onclick="openSubpage('goalPlan', '${g.id}')">Open</button>
+      <button type="button" class="del-date" style="float:none;" onclick="deleteGoal('${g.id}')" title="Delete goal">×</button>
     </div>
   `).join('');
 }
@@ -1436,7 +2247,7 @@ function renderGoalActionPlan() {
   const box = document.getElementById('goalTasksContainer');
 
   if (!g.tasks.length) {
-    box.innerHTML = `<div style="color:var(--muted); font-size:14px; padding:12px 4px;">No tasks added to this action plan yet. Click <strong>+ Add Tasks</strong> above to create Task 1.</div>`;
+    box.innerHTML = '';
     return;
   }
 
@@ -1448,9 +2259,9 @@ function renderGoalActionPlan() {
     return `
       <div class="goal-task-card">
         <div class="goal-task-head">
-          <span class="status-btn ${boxCls}" onclick="toggleGoalTaskStatus('${t.id}')" title="Click: ✓ Completed | — Not Relevant">${sym}</span>
+          <span class="status-btn ${boxCls}" onclick="toggleGoalTaskStatus('${t.id}')">${sym}</span>
           <span class="goal-task-label ${lblCls}">Task ${idx + 1}</span>
-          <button class="del-date" style="margin-left:auto;" onclick="deleteGoalTask('${t.id}')" title="Delete task">×</button>
+          <button type="button" class="del-date" style="margin-left:auto;" onclick="deleteGoalTask('${t.id}')" title="Delete task">×</button>
         </div>
         <div class="goal-task-detail" contenteditable="true" onblur="updateGoalTaskDetail('${t.id}', this.innerHTML)">${t.detail || ''}</div>
         <div class="goal-task-footer">
@@ -1463,17 +2274,20 @@ function renderGoalActionPlan() {
   }).join('');
 }
 
+/* Orange (status === 2) is strictly ignored: neither increases nor decreases completion % */
 function renderGoalsOverview() {
   const wrap = document.getElementById('goalsOverviewBars');
   if (!state.goals.length) {
-    wrap.innerHTML = `<div style="font-size:12px; color:var(--muted);">Add a goal above to see completion progress.</div>`;
+    wrap.innerHTML = '';
     return;
   }
 
   wrap.innerHTML = state.goals.map(g => {
-    const activeTasks = g.tasks.filter(t => t.status !== 2);
-    const completedCount = activeTasks.filter(t => t.status === 1).length;
-    const pct = activeTasks.length === 0 ? 0 : Math.round((completedCount / activeTasks.length) * 100);
+    const evaluatedTasks = g.tasks.filter(t => t.status === 1 || t.status === 0);
+    const tickedCount = evaluatedTasks.filter(t => t.status === 1).length;
+    const pct = (evaluatedTasks.length === 0 || tickedCount === 0)
+      ? 0
+      : Math.round((tickedCount / evaluatedTasks.length) * 100);
 
     return `
       <div class="bar-row" style="margin-bottom:8px;">
@@ -1483,6 +2297,229 @@ function renderGoalsOverview() {
       </div>
     `;
   }).join('');
+}
+
+/* Dive Into Blocks & To Be Completed / Already Done */
+function getThemedBlockBg(sp, index) {
+  const theme = state.theme || 'white';
+  if (theme === 'dark') {
+    return DIVE_DARK_PALETTE[index % DIVE_DARK_PALETTE.length];
+  }
+  if (theme === 'yellow') {
+    const warmShades = ['#fde68a', '#fef08a', '#fed7aa', '#fbcfe8', '#d9f99d', '#fde047'];
+    return warmShades[index % warmShades.length];
+  }
+  return sp.color || DIVE_PALETTE[index % DIVE_PALETTE.length];
+}
+
+function addDiveSpace() {
+  const inp = document.getElementById('diveSpaceNameInput');
+  const name = (inp.value || '').trim();
+  if (!name) return;
+  pushUndo();
+  const color = DIVE_PALETTE[state.diveSpaces.length % DIVE_PALETTE.length];
+  state.diveSpaces.push({
+    id: 'ds' + Date.now(),
+    name,
+    color,
+    tbc: [],
+    completed: []
+  });
+  diveSpacesPage = Math.max(1, Math.ceil(state.diveSpaces.length / DIVE_BLOCK_PAGE_SIZE));
+  inp.value = '';
+  save();
+  renderDiveSpacesGrid();
+}
+
+function deleteDiveSpace(spaceId, ev) {
+  if (ev) ev.stopPropagation();
+  pushUndo();
+  state.diveSpaces = state.diveSpaces.filter(s => s.id !== spaceId);
+  if (activeDiveSpaceId === spaceId) activeDiveSpaceId = null;
+  save();
+  if (currentView === 'diveSpaceDetail') openSubpage('diveInto');
+  else renderDiveSpacesGrid();
+}
+
+function setDiveSpacesPage(p) {
+  diveSpacesPage = p;
+  renderDiveSpacesGrid();
+}
+
+function renderDiveSpacesGrid() {
+  const grid = document.getElementById('diveSpacesGrid');
+  if (!grid) return;
+
+  if (!state.diveSpaces.length) {
+    grid.innerHTML = '';
+    renderInlinePager('diveSpacesPager', 1, 0, DIVE_BLOCK_PAGE_SIZE, 'setDiveSpacesPage');
+    return;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(state.diveSpaces.length / DIVE_BLOCK_PAGE_SIZE));
+  if (diveSpacesPage > totalPages) diveSpacesPage = totalPages;
+  const start = (diveSpacesPage - 1) * DIVE_BLOCK_PAGE_SIZE;
+  const slice = state.diveSpaces.slice(start, start + DIVE_BLOCK_PAGE_SIZE);
+
+  grid.innerHTML = slice.map((sp, offsetIdx) => {
+    const globalIdx = start + offsetIdx;
+    const bg = getThemedBlockBg(sp, globalIdx);
+    return `
+      <div class="dive-folder-card" style="background:${bg};" onclick="openSubpage('diveSpaceDetail', '${sp.id}')">
+        <button type="button" class="dive-del-corner" onclick="deleteDiveSpace('${sp.id}', event)" title="Delete">×</button>
+        <div class="dive-folder-name">${escapeHtml(sp.name)}</div>
+      </div>
+    `;
+  }).join('');
+
+  renderInlinePager('diveSpacesPager', diveSpacesPage, state.diveSpaces.length, DIVE_BLOCK_PAGE_SIZE, 'setDiveSpacesPage');
+}
+
+function getActiveDiveSpace() {
+  return state.diveSpaces.find(s => s.id === activeDiveSpaceId) || null;
+}
+
+function addDiveTbcItem() {
+  const sp = getActiveDiveSpace();
+  if (!sp) return;
+  const inp = document.getElementById('diveTbcInput');
+  const plain = inp.innerText.trim();
+  const html = inp.innerHTML.trim();
+  if (!plain) return;
+
+  pushUndo();
+  sp.tbc.push({
+    id: 'dtbc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    text: html
+  });
+  diveTbcPage = Math.max(1, Math.ceil(sp.tbc.length / SUBPAGE_SIZE));
+  inp.innerHTML = '';
+  save();
+  renderDiveSpaceDetail();
+}
+
+function completeDiveTbcItem(tbcId) {
+  const sp = getActiveDiveSpace();
+  if (!sp) return;
+  const idx = sp.tbc.findIndex(item => item.id === tbcId);
+  if (idx === -1) return;
+
+  pushUndo();
+  const [moved] = sp.tbc.splice(idx, 1);
+  sp.completed.unshift({
+    id: 'ddone_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    text: moved.text,
+    fromTbc: true
+  });
+  diveDonePage = 1;
+  save();
+  renderDiveSpaceDetail();
+}
+
+function editDiveTbcItem(tbcId, newHtml) {
+  const sp = getActiveDiveSpace();
+  const item = sp?.tbc.find(x => x.id === tbcId);
+  if (!item || item.text === newHtml) return;
+  pushUndo();
+  item.text = newHtml;
+  save();
+}
+
+function deleteDiveTbcItem(tbcId) {
+  const sp = getActiveDiveSpace();
+  if (!sp) return;
+  pushUndo();
+  sp.tbc = sp.tbc.filter(x => x.id !== tbcId);
+  save();
+  renderDiveSpaceDetail();
+}
+
+function addDiveCompletedDirect() {
+  const sp = getActiveDiveSpace();
+  if (!sp) return;
+  const inp = document.getElementById('diveCompletedInput');
+  const plain = inp.innerText.trim();
+  const html = inp.innerHTML.trim();
+  if (!plain) return;
+
+  pushUndo();
+  sp.completed.unshift({
+    id: 'ddone_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    text: html,
+    fromTbc: false
+  });
+  diveDonePage = 1;
+  inp.innerHTML = '';
+  save();
+  renderDiveSpaceDetail();
+}
+
+function editDiveCompletedItem(doneId, newHtml) {
+  const sp = getActiveDiveSpace();
+  const item = sp?.completed.find(x => x.id === doneId);
+  if (!item || item.text === newHtml) return;
+  pushUndo();
+  item.text = newHtml;
+  save();
+}
+
+function deleteDiveCompletedItem(doneId) {
+  const sp = getActiveDiveSpace();
+  if (!sp) return;
+  pushUndo();
+  sp.completed = sp.completed.filter(x => x.id !== doneId);
+  save();
+  renderDiveSpaceDetail();
+}
+
+function setDiveTbcPage(p) {
+  diveTbcPage = p;
+  renderDiveSpaceDetail();
+}
+
+function setDiveDonePage(p) {
+  diveDonePage = p;
+  renderDiveSpaceDetail();
+}
+
+function renderDiveSpaceDetail() {
+  const sp = getActiveDiveSpace();
+  if (!sp) {
+    openSubpage('diveInto');
+    return;
+  }
+
+  document.getElementById('diveSpaceDetailTitle').textContent = sp.name;
+  const tbcBox = document.getElementById('diveTbcList');
+  const doneBox = document.getElementById('diveCompletedList');
+
+  const tbcTotalPages = Math.max(1, Math.ceil(sp.tbc.length / SUBPAGE_SIZE));
+  if (diveTbcPage > tbcTotalPages) diveTbcPage = tbcTotalPages;
+  const tbcStart = (diveTbcPage - 1) * SUBPAGE_SIZE;
+  const tbcSlice = sp.tbc.slice(tbcStart, tbcStart + SUBPAGE_SIZE);
+
+  tbcBox.innerHTML = tbcSlice.map(item => `
+    <div class="dive-item-row">
+      <span class="status-btn" onclick="completeDiveTbcItem('${item.id}')"></span>
+      <div class="dive-item-text" contenteditable="true" onblur="editDiveTbcItem('${item.id}', this.innerHTML)">${item.text}</div>
+      <button type="button" class="del-date" style="float:none;" onclick="deleteDiveTbcItem('${item.id}')" title="Delete">×</button>
+    </div>
+  `).join('');
+  renderInlinePager('diveTbcPager', diveTbcPage, sp.tbc.length, SUBPAGE_SIZE, 'setDiveTbcPage');
+
+  const doneTotalPages = Math.max(1, Math.ceil(sp.completed.length / SUBPAGE_SIZE));
+  if (diveDonePage > doneTotalPages) diveDonePage = doneTotalPages;
+  const doneStart = (diveDonePage - 1) * SUBPAGE_SIZE;
+  const doneSlice = sp.completed.slice(doneStart, doneStart + SUBPAGE_SIZE);
+
+  doneBox.innerHTML = doneSlice.map(item => `
+    <div class="dive-item-row">
+      <span class="dive-done-badge">✓</span>
+      <div class="dive-item-text" contenteditable="true" onblur="editDiveCompletedItem('${item.id}', this.innerHTML)">${item.text}</div>
+      <button type="button" class="del-date" style="float:none;" onclick="deleteDiveCompletedItem('${item.id}')" title="Remove">×</button>
+    </div>
+  `).join('');
+  renderInlinePager('diveDonePager', diveDonePage, sp.completed.length, SUBPAGE_SIZE, 'setDiveDonePage');
 }
 
 /* Title (Editable ONLY from Customize Matrix menu) */
@@ -1497,8 +2534,12 @@ function updateTitle(val) {
 }
 
 function addDateRow() {
-  const d = dateInput.value;
+  const textEl = document.getElementById('dateDmyInput');
+  const parsedFromText = textEl ? parseDmyToISO(textEl.value) : null;
+  const d = parsedFromText || selectedLogDateISO || document.getElementById('dateInput').value;
   if (!d) return;
+  setLogDateControls(d);
+
   if (!state.dates.includes(d)) {
     pushUndo();
     state.dates.push(d);
@@ -1598,13 +2639,14 @@ function insertSticker(emoji) { document.execCommand('insertText', false, ' ' + 
 
 function renderSidebarControls() {
   document.getElementById('titleInput').value = state.title;
+  setLogDateControls(selectedLogDateISO || TODAY);
 
   const mgr = document.getElementById('colManager');
   mgr.innerHTML = state.columns.map(col => `
     <div class="col-manage-row">
       <input type="color" value="${col.color}" onchange="updateColColor('${col.id}', this.value)" style="width:26px;height:26px;border:none;background:none;cursor:pointer;">
       <input type="text" value="${escapeHtml(col.name)}" onchange="updateColName('${col.id}', this.value)" class="side-input" style="margin:0;">
-      <button onclick="deleteColumn('${col.id}')" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:15px;">×</button>
+      <button type="button" onclick="deleteColumn('${col.id}')" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:15px;">×</button>
     </div>`).join('') + `
     <div class="col-manage-row">
       <input type="color" value="${state.notesColor}" onchange="updateNotesColor(this.value)" style="width:26px;height:26px;border:none;background:none;cursor:pointer;">
@@ -1614,7 +2656,13 @@ function renderSidebarControls() {
 
 function buildDateRowElement(date) {
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td class="date-cell">${formatDateDMY(date)} <button class="del-date" onclick="removeDateRow('${date}')" title="Remove date">×</button></td>`;
+  const wk = getWeekdayShort(date);
+  tr.innerHTML = `
+    <td class="date-cell">
+      <button type="button" class="del-date" onclick="removeDateRow('${date}')" title="Remove date">×</button>
+      <div><span>${formatDateDMY(date)}</span><span class="weekday-sub">${wk}</span></div>
+    </td>
+  `;
 
   state.columns.forEach(col => {
     const cell = getCell(date, col.id);
@@ -1640,7 +2688,7 @@ function buildDateRowElement(date) {
         <span class="time-tag" contenteditable="true" onblur="editMainTime('${date}','${col.id}',this.innerText)">${cell.time || '+ time'}</span>
       </div>
       <ul class="sub-list">${subsHtml}</ul>
-      <button class="add-sub" onclick="addSub('${date}','${col.id}')">+ Add task / chapter</button>`;
+      <button type="button" class="add-sub" onclick="addSub('${date}','${col.id}')">+ Add task / chapter</button>`;
     tr.appendChild(td);
   });
 
@@ -1725,8 +2773,10 @@ function render() {
   renderTableOnly();
   renderDashboard();
   renderDeclutterList();
-  renderTimelineTable();
+  renderTimelineSection();
+  renderDiveSpacesGrid();
   if (currentView === 'goalPlan') renderGoalActionPlan();
+  if (currentView === 'diveSpaceDetail') renderDiveSpaceDetail();
 }
 
 function editNote(date, html) {
