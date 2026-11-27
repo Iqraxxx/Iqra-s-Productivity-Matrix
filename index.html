@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" id="metaIosStatusBar" content="default">
 <meta name="theme-color" id="metaThemeColor" content="#ffffff">
 <style>
   :root {
@@ -21,7 +21,7 @@
     --accent: #0f172a;
     --accent-text: #ffffff;
     --date-bg: #ffffff;
-    --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    --card-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
   }
 
   /* Sticky Note Light Yellow Theme */
@@ -29,14 +29,14 @@
     --bg: #fef9c3;
     --sidebar: #fef08a;
     --surface: #fefce8;
-    --subtle: #fde04766;
+    --subtle: #fde04755;
     --border: #ca8a0455;
     --text: #422006;
     --muted: #854d0e;
     --accent: #a16207;
     --accent-text: #ffffff;
     --date-bg: #fefce8;
-    --card-shadow: 0 1px 3px rgba(66, 32, 6, 0.05);
+    --card-shadow: 0 2px 10px rgba(66, 32, 6, 0.05);
   }
 
   /* Rich Obsidian-Slate Dark Mode Theme */
@@ -51,7 +51,7 @@
     --accent: #60a5fa;
     --accent-text: #071120;
     --date-bg: #0f1729;
-    --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.32);
+    --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     color-scheme: dark;
   }
 
@@ -63,18 +63,18 @@
     overflow-x: clip;
     margin: 0;
     padding: 0;
+    min-height: 100%;
     transition: background 0.2s ease, color 0.2s ease;
   }
 
-  body::before {
-    content: "";
+  .ios-top-backdrop {
     position: fixed;
-    top: -60px;
+    top: 0;
     left: 0;
     right: 0;
-    height: calc(60px + env(safe-area-inset-top, 0px));
+    height: calc(env(safe-area-inset-top, 0px) + 6px);
     background: var(--bg);
-    z-index: 9999;
+    z-index: 140;
     pointer-events: none;
     transition: background 0.2s ease;
   }
@@ -86,13 +86,13 @@
     display: flex;
     min-height: 100vh;
     min-height: 100dvh;
+    width: 100%;
     background: var(--bg);
     color: var(--text);
     overflow-x: clip;
     transition: background 0.2s ease, color 0.2s ease;
   }
 
-  /* Invisible left-edge swipe trigger on mobile */
   .edge-swipe-zone { display: none; }
   @media (max-width: 768px) {
     .edge-swipe-zone {
@@ -117,7 +117,6 @@
   }
   .sidebar-backdrop.active { display: block; }
 
-  /* Scrollable & Rollable Left Sidebar */
   .sidebar {
     width: 310px;
     background: var(--sidebar);
@@ -140,7 +139,6 @@
 
   .sidebar::-webkit-scrollbar { width: 6px; }
   .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
-
   .sidebar.closed { margin-left: -310px; }
 
   .sidebar-top-row {
@@ -165,7 +163,6 @@
     padding: 12px;
     box-shadow: var(--card-shadow);
   }
-
   .side-box h4 {
     margin: 0 0 8px 0;
     font-size: 12px;
@@ -179,17 +176,14 @@
     padding: 8px 10px;
     border: 1px solid var(--border);
     border-radius: 7px;
-    font-size: 15px;
+    font-size: 16px;
     margin-bottom: 8px;
     background: var(--bg);
     color: var(--text);
     outline: none;
   }
-  .side-input:focus {
-    border-color: var(--accent);
-  }
+  .side-input:focus { border-color: var(--accent); }
 
-  /* Custom D/M/YYYY Log Date Field with Integrated Calendar Picker */
   .dmy-date-field {
     position: relative;
     display: flex;
@@ -202,15 +196,13 @@
     padding: 8px 36px 8px 10px;
     border: 1px solid var(--border);
     border-radius: 7px;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     background: var(--bg);
     color: var(--text);
     outline: none;
   }
-  .dmy-date-field input[type="text"]:focus {
-    border-color: var(--accent);
-  }
+  .dmy-date-field input[type="text"]:focus { border-color: var(--accent); }
   .dmy-picker-trigger {
     position: absolute;
     right: 6px;
@@ -225,10 +217,7 @@
     cursor: pointer;
     overflow: hidden;
   }
-  .dmy-picker-trigger:hover {
-    background: var(--subtle);
-    color: var(--text);
-  }
+  .dmy-picker-trigger:hover { background: var(--subtle); color: var(--text); }
   .dmy-picker-trigger input[type="date"] {
     position: absolute;
     inset: 0;
@@ -260,7 +249,6 @@
     border-color: var(--accent);
   }
 
-  /* Collapsible Single-Heading Accordion Sections */
   .acc-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -293,54 +281,53 @@
   }
   .acc-card.open .acc-panel { display: block; }
 
-  /* Original Dashboard Bars & Goal Progress Bars */
-  .bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 11px; }
-  .bar-label { width: 74px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .side-page-link-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--subtle);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .week-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .week-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .week-step-btn {
+    border: 1px solid var(--border);
+    background: var(--subtle);
+    color: var(--text);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .week-step-btn:hover { border-color: var(--accent); }
+
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11.5px; }
+  .bar-label { width: 42px; font-weight: 700; white-space: nowrap; }
   .bar-track { flex: 1; height: 10px; background: var(--subtle); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
   .bar-fill { height: 100%; background: #22c55e; transition: width 0.3s; }
   body[data-theme="dark"] .bar-fill { background: #34d399; }
 
-  /* Long Term Goals Sidebar List */
-  .goal-side-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 6px;
-    background: var(--subtle);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 5px 7px;
-  }
-  .goal-name-input {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    background: transparent;
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 600;
-    outline: none;
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-  .goal-name-input:focus {
-    background: var(--bg);
-    box-shadow: 0 0 0 1px var(--accent);
-  }
-  .goal-open-pill {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .goal-open-pill:hover { filter: brightness(1.08); }
-
-  /* 4-Tier Monthly Overview */
   .month-nav {
     display: flex;
     align-items: center;
@@ -379,20 +366,21 @@
   .m-legend {
     display: flex;
     justify-content: space-between;
-    font-size: 9.5px;
+    font-size: 9px;
     color: var(--muted);
     margin-top: 8px;
+    gap: 2px;
+    flex-wrap: wrap;
   }
   .m-dot {
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 2px;
     margin-right: 2px;
     vertical-align: middle;
   }
 
-  /* Theme Selector inside Customize Matrix */
   .theme-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -410,16 +398,14 @@
     cursor: pointer;
     text-align: center;
   }
-  .theme-opt.active {
-    outline: 2px solid var(--accent);
-    border-color: var(--accent);
-  }
+  .theme-opt.active { outline: 2px solid var(--accent); border-color: var(--accent); }
   .col-manage-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
 
-  /* Main Area */
   .main {
     flex: 1;
-    padding: calc(20px + env(safe-area-inset-top, 0px)) 28px 76px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 28px 84px;
     overflow-x: auto;
     min-width: 0;
     background: var(--bg);
@@ -429,14 +415,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     gap: 10px;
     flex-wrap: wrap;
   }
   .toggle-btn {
-    padding: 6px 12px;
+    padding: 7px 12px;
     border: 1px solid var(--border);
-    border-radius: 7px;
+    border-radius: 8px;
     background: var(--surface);
     color: var(--text);
     cursor: pointer;
@@ -446,30 +432,67 @@
   .toggle-btn:hover:not(:disabled) { background: var(--subtle); }
   .toggle-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-  .format-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-  .format-tools button {
-    padding: 6px 10px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
+  /* Floating Selection Quick-Bar */
+  .selection-pop-wrap {
+    position: fixed;
+    z-index: 160;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    transform: translate(-50%, calc(-100% - 8px));
+  }
+  .selection-pop-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
     background: var(--surface);
     color: var(--text);
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 8px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
   }
-  .format-tools button:hover { background: var(--subtle); }
+  .selection-pop-bar button {
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 7px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .selection-pop-bar button:hover { background: var(--subtle); }
+  .emoji-quick-tray {
+    display: none;
+    gap: 4px;
+    margin-top: 6px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  }
+  .emoji-quick-tray.open { display: flex; }
+  .emoji-quick-tray button {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .emoji-quick-tray button:hover { background: var(--subtle); }
 
-  /* Locked Non-Editable Main Title (Editable only inside Customize Matrix menu) */
   .page-title {
     font-size: 26px;
     font-weight: 800;
-    margin: 0 0 18px 0;
+    margin: 0 0 16px 0;
     padding: 2px 4px;
     user-select: none;
     letter-spacing: -0.02em;
   }
 
-  /* Clean Matrix Table */
   .table-wrap {
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -487,20 +510,10 @@
   }
   th { font-size: 13px; font-weight: 700; text-align: left; }
 
-  /* Theme-adapted cell overlay for Dark & Yellow themes */
-  body[data-theme="dark"] th {
-    background-color: #162033 !important;
-    color: #f1f5f9 !important;
-  }
-  body[data-theme="dark"] td.themed-cell {
-    background-color: var(--surface) !important;
-    color: var(--text) !important;
-  }
+  body[data-theme="dark"] th { background-color: #162033 !important; color: #f1f5f9 !important; }
+  body[data-theme="dark"] td.themed-cell { background-color: var(--surface) !important; color: var(--text) !important; }
   body[data-theme="yellow"] th,
-  body[data-theme="yellow"] td.themed-cell {
-    background-color: var(--surface) !important;
-    color: var(--text) !important;
-  }
+  body[data-theme="yellow"] td.themed-cell { background-color: var(--surface) !important; color: var(--text) !important; }
 
   .date-cell {
     min-width: 145px;
@@ -590,7 +603,6 @@
   .notes-box { min-height: 60px; font-size: 13px; line-height: 1.5; outline: none; }
   .notes-box:empty:before { content: "Write notes..."; color: var(--muted); }
 
-  /* Floating Bottom Pill for Page Navigation (Matrix) */
   .floating-page-pill {
     position: fixed;
     bottom: calc(14px + env(safe-area-inset-bottom, 0px));
@@ -624,23 +636,10 @@
     cursor: pointer;
     padding: 0;
   }
-  .pill-nav-btn:hover:not(:disabled) {
-    background: var(--accent);
-    color: var(--accent-text);
-    border-color: var(--accent);
-  }
-  .pill-nav-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-  .pill-page-label {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 0 4px;
-    white-space: nowrap;
-  }
+  .pill-nav-btn:hover:not(:disabled) { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .pill-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .pill-page-label { font-size: 12px; font-weight: 700; padding: 0 4px; white-space: nowrap; }
 
-  /* Inline Subpage Pager Bar */
   .subpage-pager {
     display: flex;
     align-items: center;
@@ -663,12 +662,8 @@
     font-weight: 700;
     cursor: pointer;
   }
-  .subpage-pager button:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
+  .subpage-pager button:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  /* Dedicated Sub-Pages */
   .subpage-card {
     display: none;
     background: var(--surface);
@@ -689,7 +684,29 @@
     border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
   }
-  .subpage-header h2 { margin: 0; font-size: 20px; font-weight: 800; }
+  .subpage-header h2 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .header-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .plus-circle-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--subtle);
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .plus-circle-btn:hover { border-color: var(--accent); background: var(--surface); }
 
   .declutter-input-row {
     display: flex;
@@ -704,11 +721,10 @@
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text);
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
   }
 
-  /* Simple User-Friendly Time Input (e.g. 10:00 - 11:30) */
   .tl-time-text-input {
     width: 158px;
     padding: 9px 10px;
@@ -716,18 +732,13 @@
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text);
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
     font-family: inherit;
   }
-  .tl-time-text-input:focus {
-    border-color: var(--accent);
-  }
-  .tl-time-text-input::placeholder {
-    color: var(--muted);
-  }
+  .tl-time-text-input:focus { border-color: var(--accent); }
+  .tl-time-text-input::placeholder { color: var(--muted); }
 
-  /* Rich Contenteditable Input Box for Highlight / Underline / Emoji support */
   .rich-input-box {
     flex: 1;
     min-width: 180px;
@@ -742,9 +753,7 @@
     outline: none;
     word-break: break-word;
   }
-  .rich-input-box:focus {
-    border-color: var(--accent);
-  }
+  .rich-input-box:focus { border-color: var(--accent); }
   .rich-input-box:empty:before {
     content: attr(data-placeholder);
     color: var(--muted);
@@ -785,39 +794,30 @@
     font-weight: 700;
     flex-shrink: 0;
   }
-  .dym-line-btn:hover {
-    color: var(--text);
-    border-color: var(--accent);
-  }
+  .dym-line-btn:hover { color: var(--text); border-color: var(--accent); }
   .declutter-bullet-item.struck .dym-line-btn {
     background: var(--accent);
     color: var(--accent-text);
     border-color: var(--accent);
   }
-  .declutter-bullet-text {
-    flex: 1;
-    outline: none;
-    word-break: break-word;
-  }
-  .declutter-bullet-text::before {
-    content: "• ";
-    font-weight: 800;
-    margin-right: 4px;
-  }
-  .declutter-bullet-item.struck .declutter-bullet-text {
-    text-decoration: line-through;
-    opacity: 0.52;
-  }
+  .declutter-bullet-text { flex: 1; outline: none; word-break: break-word; }
+  .declutter-bullet-text::before { content: "• "; font-weight: 800; margin-right: 4px; }
+  .declutter-bullet-item.struck .declutter-bullet-text { text-decoration: line-through; opacity: 0.52; }
 
-  /* Compact Expandable "Your Calendar" Chip & Drawer inside Timeline */
+  /* Floating Calendar & Weekly Event Windows on Your Upcoming Timeline */
   .your-cal-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
     margin-bottom: 14px;
   }
   .your-cal-chip {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 7px 13px;
+    padding: 7px 14px;
     border-radius: 999px;
     border: 1px solid var(--border);
     background: var(--subtle);
@@ -826,65 +826,115 @@
     font-weight: 700;
     cursor: pointer;
   }
-  .your-cal-chip.open {
-    background: var(--accent);
-    color: var(--accent-text);
-    border-color: var(--accent);
+  .your-cal-chip.open,
+  .your-cal-chip.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .recur-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--subtle);
+    color: var(--text);
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
-  .timeline-cal-drawer {
+  .recur-icon-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+
+  .recur-popover {
     display: none;
+    position: fixed;
+    top: 185px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 120;
+    width: min(410px, calc(100vw - 28px));
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.28);
+  }
+  .recur-popover.open { display: block; }
+  .recur-float-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .recur-form-line {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .recur-form-line:last-of-type { margin-bottom: 0; }
+  .recur-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; max-height: 160px; overflow-y: auto; }
+  .recur-pill-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     background: var(--subtle);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px;
-    margin-top: 10px;
-    max-width: 390px;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
   }
-  .timeline-cal-drawer.open {
-    display: block;
+
+  .timeline-cal-drawer {
+    display: none;
+    position: fixed;
+    top: 185px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 120;
+    width: min(370px, calc(100vw - 28px));
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 20px 46px rgba(15, 23, 42, 0.3);
   }
+  .timeline-cal-drawer.open { display: block; }
   .tl-cal-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
   }
-  .tl-cal-title {
-    font-size: 13px;
-    font-weight: 800;
-  }
-  .tl-cal-nav {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
+  .tl-cal-title { font-size: 14px; font-weight: 800; }
+  .tl-cal-nav { display: flex; align-items: center; gap: 5px; }
   .tl-cal-nav button {
     border: 1px solid var(--border);
-    background: var(--surface);
+    background: var(--subtle);
     color: var(--text);
-    border-radius: 6px;
-    padding: 3px 8px;
+    border-radius: 7px;
+    padding: 3px 9px;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
   }
-  .tl-cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-  .tl-cal-dow {
-    text-align: center;
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--muted);
-  }
+  .tl-cal-nav button:hover { border-color: var(--accent); }
+  .tl-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .tl-cal-dow { text-align: center; font-size: 10px; font-weight: 800; color: var(--muted); padding-bottom: 2px; }
   .tl-cal-day {
-    height: 32px;
-    border-radius: 7px;
+    height: 36px;
+    border-radius: 9px;
     border: 1px solid var(--border);
-    background: var(--surface);
+    background: var(--subtle);
     color: var(--text);
     display: flex;
     align-items: center;
@@ -893,23 +943,16 @@
     font-weight: 700;
     cursor: pointer;
     padding: 0;
+    transition: transform 0.12s ease, border-color 0.12s ease;
   }
-  .tl-cal-day.empty {
-    background: transparent;
-    border-color: transparent;
-    cursor: default;
-  }
-  .tl-cal-day.has-event {
-    color: #0f172a;
-    border-color: rgba(15, 23, 42, 0.2);
-  }
-  .tl-cal-day.selected-day {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-  }
+  .tl-cal-day:hover:not(.empty) { transform: scale(1.05); border-color: var(--accent); }
+  .tl-cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+  .tl-cal-day.today-ring { box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .tl-cal-day.has-event { color: #0f172a; border-color: rgba(15, 23, 42, 0.22); }
+  .tl-cal-day.selected-day { outline: 2px solid var(--accent); outline-offset: 1px; }
   .tl-event-names-footer {
     margin-top: 10px;
-    padding-top: 8px;
+    padding-top: 10px;
     border-top: 1px solid var(--border);
     display: flex;
     flex-wrap: wrap;
@@ -919,24 +962,16 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 4px 10px;
+    padding: 5px 11px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 700;
     color: #0f172a;
-    border: 1px solid rgba(15, 23, 42, 0.14);
+    border: 1px solid rgba(15, 23, 42, 0.16);
   }
-  .tl-time-badge {
-    font-size: 11px;
-    font-weight: 600;
-    opacity: 0.78;
-  }
+  .tl-time-badge { font-size: 11px; font-weight: 600; opacity: 0.78; }
 
-  .timeline-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 4px;
-  }
+  .timeline-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
   .timeline-table th, .timeline-table td {
     min-width: 0;
     border: 1px solid var(--border);
@@ -951,32 +986,104 @@
     letter-spacing: 0.4px;
     color: var(--muted);
   }
-  .tl-crossed {
-    text-decoration: line-through;
-    color: #f87171;
-    opacity: 0.75;
+  .tl-crossed { text-decoration: line-through; color: #f87171; opacity: 0.75; }
+  .tl-done { text-decoration: line-through; opacity: 0.6; }
+
+  /* Your Long Term Goals Grid & Action Plan */
+  .goals-page-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
   }
-  .tl-done {
-    text-decoration: line-through;
-    opacity: 0.6;
+  .goal-page-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 14px;
+    min-height: 102px;
+    background: var(--subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.14s ease, border-color 0.14s ease;
+  }
+  .goal-page-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .goal-page-card-title {
+    font-size: 15.5px;
+    font-weight: 800;
+    color: var(--text);
+    word-break: break-word;
+    padding: 0 22px;
+  }
+  .goal-card-del-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 5px;
+  }
+  .goal-card-del-btn:hover { color: #dc2626; }
+
+  .goal-plan-heading-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .goal-action-plan-badge {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .goal-inline-rename-input {
+    font-size: 18px;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 7px;
+    border: 1.5px solid var(--accent);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
   }
 
-  /* Goal Action Plan Cards */
   .action-tasks-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: var(--subtle);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 10px 14px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
   }
-  .action-tasks-bar span {
-    font-size: 14px;
+  .action-tasks-bar:hover { border-color: var(--accent); }
+  .tasks-fold-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
+    padding: 2px 4px;
+    pointer-events: none;
   }
   .goal-task-card {
     border: 1px solid var(--border);
@@ -993,10 +1100,7 @@
     padding-bottom: 6px;
     border-bottom: 1px dashed var(--border);
   }
-  .goal-task-label {
-    font-size: 13px;
-    font-weight: 800;
-  }
+  .goal-task-label { font-size: 13px; font-weight: 800; }
   .goal-task-label.is-done { text-decoration: line-through; opacity: 0.6; }
   .goal-task-label.is-irrelevant { text-decoration: line-through; color: #fb923c; opacity: 0.82; }
   .goal-task-detail {
@@ -1008,35 +1112,29 @@
     background: var(--surface);
     color: var(--text);
     font-family: inherit;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.45;
     outline: none;
     margin-bottom: 8px;
     word-break: break-word;
   }
-  .goal-task-detail:empty:before {
-    content: "Type task details...";
-    color: var(--muted);
-    pointer-events: none;
-  }
-  .goal-task-footer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--muted);
-    flex-wrap: wrap;
-  }
+  .goal-task-detail:empty:before { content: "Type task details..."; color: var(--muted); pointer-events: none; }
+  .goal-task-footer { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
   .goal-task-footer input[type="date"] {
     background: var(--surface);
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 4px 8px;
-    font-size: 13px;
+    font-size: 16px;
+  }
+  .goal-target-dmy {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
   }
 
-  /* Dive Into Blocks Grid & Detail View */
+  /* Dive Into Blocks Grid & Collapsible Sections + Dropdown Actions */
   .dive-spaces-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
@@ -1044,36 +1142,29 @@
     margin-top: 8px;
   }
   .dive-folder-card {
-    border-radius: 12px;
-    padding: 16px;
-    min-height: 112px;
+    border-radius: 14px;
+    padding: 18px 16px;
+    min-height: 114px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     cursor: pointer;
-    border: 1.5px solid rgba(15, 23, 42, 0.14);
+    border: 2px solid rgba(15, 23, 42, 0.16);
     color: #0f172a;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
     position: relative;
   }
   body[data-theme="dark"] .dive-folder-card {
     color: #0f172a;
-    border: 1.5px solid rgba(147, 197, 253, 0.55);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-  }
-  body[data-theme="dark"] .dive-folder-card:hover {
-    border-color: #93c5fd;
-    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.22);
+    border: 2px solid rgba(147, 197, 253, 0.65);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   }
   body[data-theme="yellow"] .dive-folder-card {
     color: #422006;
-    border-color: rgba(66, 32, 6, 0.18);
+    border: 2px solid rgba(161, 98, 7, 0.35);
   }
-  .dive-folder-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
-  }
+  .dive-folder-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12); }
   .dive-del-corner {
     position: absolute;
     top: 6px;
@@ -1081,56 +1172,385 @@
     border: none;
     background: none;
     color: inherit;
-    opacity: 0.6;
+    opacity: 0.65;
     font-size: 15px;
     cursor: pointer;
     padding: 2px 5px;
   }
   .dive-del-corner:hover { opacity: 1; color: #dc2626; }
-  .dive-folder-name {
-    font-size: 16px;
-    font-weight: 800;
-    word-break: break-word;
-  }
+  .dive-folder-name { font-size: 16px; font-weight: 800; word-break: break-word; }
 
-  .dive-split-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .dive-panel {
-    background: var(--subtle);
+  .block-canvas-shell {
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
+    border-radius: 16px;
+    padding: 18px;
+    background: var(--bg);
   }
-  .dive-panel h3 {
-    margin: 0 0 10px 0;
-    font-size: 15px;
-    font-weight: 800;
+  .dive-section-card {
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    position: relative;
+    color: #0f172a;
+    transition: box-shadow 0.15s ease;
   }
-  .dive-item-row {
+  body[data-theme="dark"] .dive-section-card {
+    color: #0f172a;
+    border-color: rgba(147, 197, 253, 0.45);
+  }
+  body[data-theme="yellow"] .dive-section-card {
+    color: #422006;
+    border-color: rgba(161, 98, 7, 0.25);
+  }
+  .dive-section-card:hover { box-shadow: var(--card-shadow); }
+
+  .dive-section-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 10px;
-    margin-bottom: 8px;
-    font-size: 14px;
+    position: relative;
+    cursor: pointer;
   }
-  .dive-item-text {
+  .section-fold-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .dive-section-title {
     flex: 1;
+    min-width: 120px;
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     outline: none;
+    padding: 3px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .dive-section-title.editing {
+    cursor: text;
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
+    box-shadow: 0 0 0 1.5px var(--accent);
+  }
+
+  .sec-menu-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .sec-menu-trigger {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    background: rgba(255, 255, 255, 0.85);
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .sec-menu-trigger:hover { background: #ffffff; }
+
+  .sec-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 36px;
+    z-index: 50;
+    min-width: 168px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sec-dropdown-menu.open { display: flex; }
+  .sec-dropdown-item {
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .sec-dropdown-item:hover { background: var(--subtle); }
+  .sec-dropdown-item.danger { color: #dc2626; }
+  body[data-theme="dark"] .sec-dropdown-item.danger { color: #f87171; }
+
+  .mini-action-btn {
+    padding: 3px 8px;
+    border-radius: 7px;
+    border: 1px solid rgba(15, 23, 42, 0.16);
+    background: rgba(255, 255, 255, 0.85);
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .mini-action-btn:hover { background: #ffffff; }
+
+  .dive-section-body {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(15, 23, 42, 0.1);
+  }
+
+  /* Collapsed Sticky Note Icon + Compact View/Edit Note Card */
+  .sticky-note-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .sticky-note-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(161, 98, 7, 0.35);
+    background: #fef08a;
+    color: #422006;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .dive-notepad-box {
+    margin-top: 8px;
+    padding: 8px 12px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(161, 98, 7, 0.35);
+    background: #fef9c3;
+    color: #422006;
+    max-width: 420px;
+    position: relative;
+  }
+  .dive-notepad-top {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 18px;
+    margin-bottom: 0;
+  }
+  .note-more-wrap { position: relative; line-height: 1; }
+  .note-more-btn {
+    width: 22px;
+    height: 18px;
+    padding: 0;
+    border-radius: 5px;
+    border: none;
+    background: transparent;
+    color: #422006;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    line-height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .note-more-btn:hover { background: rgba(161, 98, 7, 0.14); }
+  .note-more-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 22px;
+    z-index: 60;
+    min-width: 112px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    flex-direction: column;
+    gap: 2px;
+  }
+  .note-more-menu.open { display: flex; }
+
+  .dive-notepad-area {
+    min-height: 36px;
+    margin-top: 0;
+    padding-top: 0;
+    outline: none;
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 17px;
     line-height: 1.4;
     word-break: break-word;
+    cursor: pointer;
   }
-  .dive-done-badge {
-    font-size: 12px;
+  .dive-notepad-area.editing { cursor: text; }
+  .dive-notepad-area:empty:before {
+    content: "Add your note";
+    color: #854d0e;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  /* Collapsible Subsections */
+  .dive-subsection-box {
+    margin-top: 8px;
+    margin-left: 6px;
+    padding: 8px 12px;
+    border-left: 2.5px solid #2563eb;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.76);
+    color: #0f172a;
+  }
+  .dive-subsection-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .dive-subsection-title {
+    flex: 1;
+    min-width: 120px;
+    font-size: 14px;
+    font-weight: 700;
+    outline: none;
+    padding: 2px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .dive-subsection-title.editing {
+    cursor: text;
+    background: #ffffff;
+    box-shadow: 0 0 0 1.5px #2563eb;
+    user-select: text;
+  }
+  .dive-subsection-body {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed rgba(15, 23, 42, 0.12);
+  }
+
+  .tick-bullet-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 3px 4px;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .tick-box-btn {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+    border-radius: 5px;
+    border: 1.5px solid #475569;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 11px;
     font-weight: 800;
-    color: #22c55e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
     flex-shrink: 0;
+  }
+  .tick-box-btn.ticked {
+    background: #22c55e;
+    border-color: #16a34a;
+    color: #ffffff;
+  }
+  .tick-bullet-text {
+    flex: 1;
+    outline: none;
+    word-break: break-word;
+  }
+  .plain-bullet-dot {
+    font-weight: 800;
+    line-height: 1.45;
+    padding-left: 3px;
+    user-select: none;
+  }
+
+  .block-photos-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .block-photo-thumb-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .block-photo-img {
+    width: 64px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    display: block;
+    cursor: pointer;
+  }
+
+  /* In-app Lightbox Modal for Clicked Image */
+  .photo-lightbox-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.78);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .photo-lightbox-backdrop.open { display: flex; }
+  .photo-lightbox-card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    max-width: 90vw;
+    max-height: 85vh;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  }
+  .photo-lightbox-card img {
+    display: block;
+    max-width: 100%;
+    max-height: 75vh;
+    border-radius: 8px;
+    object-fit: contain;
+  }
+  .photo-lightbox-close {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
   }
 
   @media (max-width: 768px) {
@@ -1148,24 +1568,42 @@
       transition: transform 0.25s ease;
     }
     .sidebar.closed { margin-left: 0; transform: translateX(-100%); }
-    .main {
-      padding: calc(14px + env(safe-area-inset-top, 0px)) 12px 76px;
-      width: 100%;
-    }
+    .main { padding: calc(14px + env(safe-area-inset-top, 0px)) 12px 84px; width: 100%; }
     .page-title { font-size: 20px; margin-bottom: 12px; }
     th, td { min-width: 180px; padding: 8px; }
     .date-cell { min-width: 128px; width: 128px; font-size: 12px; position: sticky; left: 0; z-index: 3; }
     .status-btn { width: 24px; height: 24px; }
-    .subpage-card { padding: 16px 14px; }
-    .dive-split-grid { grid-template-columns: 1fr; }
-    .timeline-cal-drawer { max-width: 100%; }
+    .subpage-card { padding: 16px 14px; border-radius: 12px; }
   }
 </style>
 </head>
 <body>
 
+<div class="ios-top-backdrop" aria-hidden="true"></div>
 <div class="edge-swipe-zone" id="edgeSwipeZone"></div>
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<!-- In-app Image Viewer Modal -->
+<div class="photo-lightbox-backdrop" id="photoLightboxBackdrop" onclick="closePhotoLightbox()">
+  <div class="photo-lightbox-card" onclick="event.stopPropagation()">
+    <button type="button" class="photo-lightbox-close" onclick="closePhotoLightbox()">×</button>
+    <img id="photoLightboxImg" src="" alt="">
+  </div>
+</div>
+
+<!-- Floating Selection Quick-Bar -->
+<div class="selection-pop-wrap" id="selectionPopWrap" onmousedown="event.preventDefault()">
+  <div class="selection-pop-bar">
+    <button type="button" onclick="applyQuickStyle('bold')" title="Bold (Cmd/Ctrl+B)"><b>B</b></button>
+    <button type="button" onclick="applyQuickStyle('underline')" title="Underline (Cmd/Ctrl+U)"><u>U</u></button>
+    <button type="button" onclick="applyQuickStyle('hiliteColor', '#fef08a')" title="Highlight">🖍️</button>
+    <button type="button" onclick="toggleActiveFontStyle()" title="Switch Font">Font</button>
+    <button type="button" onclick="toggleEmojiTray()" title="Insert emoji">❗</button>
+  </div>
+  <div class="emoji-quick-tray" id="emojiQuickTray">
+    <button type="button" onclick="insertEmojiAtCaret('❗')">❗</button>
+  </div>
+</div>
 
 <!-- Collapsible & Scrollable Left Sidebar -->
 <aside class="sidebar closed" id="sidebar">
@@ -1174,7 +1612,7 @@
     <button class="toggle-btn" onclick="closeSidebar()" style="padding: 4px 10px; font-size: 12px;">✕ Close Menu</button>
   </div>
 
-  <!-- 1. Log Date (Direct D/M/YYYY Format + Calendar Picker) -->
+  <!-- 1. Log Date -->
   <div class="side-box">
     <h4>📅 Log Date</h4>
     <div class="dmy-date-field">
@@ -1197,7 +1635,13 @@
       <div style="font-size:12px; font-weight:600; margin-bottom:4px;">Today's Progress</div>
       <div id="todayChart" style="margin-bottom:12px;"></div>
 
-      <div style="font-size:12px; font-weight:600; margin-bottom:4px;">Weekly Pattern (Avg %)</div>
+      <div class="week-header-row">
+        <span id="weeklyRangeLabel">Weekly Avg</span>
+        <div class="week-nav-group">
+          <button type="button" class="week-step-btn" onclick="shiftWeek(-1)" title="Previous week">‹</button>
+          <button type="button" class="week-step-btn" onclick="shiftWeek(1)" title="Next week">›</button>
+        </div>
+      </div>
       <div id="weekChart"></div>
     </div>
   </div>
@@ -1216,10 +1660,10 @@
       </div>
       <div class="month-grid" id="monthChart"></div>
       <div class="m-legend">
-        <span><i class="m-dot" style="background:#ef4444;"></i>0%</span>
-        <span><i class="m-dot" style="background:#f97316;"></i>&lt;50%</span>
-        <span><i class="m-dot" style="background:#4ade80;"></i>50-99%</span>
-        <span><i class="m-dot" style="background:#15803d;"></i>100%</span>
+        <span><i class="m-dot" style="background:#ef4444;"></i>0–20%</span>
+        <span><i class="m-dot" style="background:#f97316;"></i>20–50%</span>
+        <span><i class="m-dot" style="background:#4ade80;"></i>50–80%</span>
+        <span><i class="m-dot" style="background:#15803d;"></i>80–100%</span>
       </div>
     </div>
   </div>
@@ -1228,7 +1672,7 @@
   <div class="acc-card">
     <button class="acc-btn" onclick="openSubpage('declutter')">
       <span>🧠 Declutter Your Mind</span>
-      <span style="font-size:11px; color:var(--muted);">Open →</span>
+      <span class="side-page-link-btn">›</span>
     </button>
   </div>
 
@@ -1236,7 +1680,7 @@
   <div class="acc-card">
     <button class="acc-btn" onclick="openSubpage('timeline')">
       <span>⏳ Your Upcoming Timeline</span>
-      <span style="font-size:11px; color:var(--muted);">Open →</span>
+      <span class="side-page-link-btn">›</span>
     </button>
   </div>
 
@@ -1244,23 +1688,19 @@
   <div class="acc-card">
     <button class="acc-btn" onclick="openSubpage('diveInto')">
       <span>🗂️ Dive Into</span>
-      <span style="font-size:11px; color:var(--muted);">Open →</span>
+      <span class="side-page-link-btn">›</span>
     </button>
   </div>
 
   <!-- 7. Your Long Term Goals -->
-  <div class="acc-card" id="acc-goals">
-    <button class="acc-btn" onclick="toggleAccordion('acc-goals')">
+  <div class="acc-card">
+    <button class="acc-btn" onclick="openSubpage('goalsOverviewPage')">
       <span>🎯 Your Long Term Goals</span>
-      <span class="acc-arrow">▼</span>
+      <span class="side-page-link-btn">›</span>
     </button>
-    <div class="acc-panel">
-      <div id="goalsSideList"></div>
-      <button class="btn" onclick="addGoal()" style="margin-top:4px;">+ Add Goal</button>
-    </div>
   </div>
 
-  <!-- 8. Your Goals Overview (Right under Long Term Goals) -->
+  <!-- 8. Your Goals Overview -->
   <div class="acc-card" id="acc-goals-overview">
     <button class="acc-btn" onclick="toggleAccordion('acc-goals-overview')">
       <span>📈 Your Goals Overview</span>
@@ -1299,15 +1739,9 @@
 <main class="main" id="mainWorkspace">
   <div class="top-bar">
     <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu & Dashboard</button>
-    <div class="format-tools">
-      <button onmousedown="event.preventDefault()" onclick="formatText('hiliteColor', '#fef08a')" title="Highlight selected text">🖍️ Highlight</button>
-      <button onmousedown="event.preventDefault()" onclick="formatText('underline')" title="Underline selected text"><u>U</u> Underline</button>
-      <button onmousedown="event.preventDefault()" onclick="insertSticker('❗')" title="Insert exclamation mark">❗</button>
-      <button id="undoBtn" onclick="undoLastAction()" disabled title="Undo last change (Cmd+Z)">↩ Undo</button>
-    </div>
+    <button id="undoBtn" class="toggle-btn" onclick="undoLastAction()" disabled title="Undo last change (Cmd+Z)">↩ Undo</button>
   </div>
 
-  <!-- Locked Title (Editable only inside Customize Matrix menu) -->
   <h1 id="pageTitle" class="page-title"></h1>
 
   <!-- View 1: Matrix Table View -->
@@ -1318,7 +1752,6 @@
     </table>
   </div>
 
-  <!-- Floating Bottom Pill for Multi-Page Navigation -->
   <div class="floating-page-pill" id="matrixPagination">
     <button class="pill-nav-btn" id="prevPageBtn" onclick="changeMatrixPage(-1)" title="Previous Page">‹</button>
     <span class="pill-page-label" id="pageIndicator">1 / 1</span>
@@ -1353,19 +1786,41 @@
       <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addTimelineItem()">+ Add</button>
     </div>
 
-    <!-- Compact Expandable "Your Calendar" -->
-    <div class="your-cal-bar">
+    <div class="your-cal-bar" onclick="event.stopPropagation()">
       <button type="button" class="your-cal-chip" id="yourCalendarChip" onclick="toggleYourCalendar()">
         <span>🗓️</span>
         <span>Your Calendar</span>
       </button>
 
+      <button type="button" class="recur-icon-btn" id="recurToggleBtn" onclick="toggleRecurPopover()" title="Weekly recurring events">
+        🔁
+      </button>
+
+      <!-- Floating Weekly Recurring Event Window -->
+      <div class="recur-popover" id="recurPopover">
+        <div class="recur-float-head">
+          <span>🔁 Weekly Event</span>
+          <button type="button" class="del-date" style="float:none;" onclick="closeFloatingTimelinePopups()" title="Close">×</button>
+        </div>
+        <div class="recur-form-line">
+          <input type="date" id="recurDateInput">
+          <input type="text" id="recurTimeInput" class="tl-time-text-input" style="flex:1; min-width:110px; width:auto;" placeholder="Time">
+        </div>
+        <div class="recur-form-line">
+          <input type="text" id="recurTitleInput" class="tl-time-text-input" style="flex:1; min-width:150px; width:auto;" placeholder="Weekly event title" onkeydown="if(event.key==='Enter'){ event.preventDefault(); addCalendarRecurringEvent(); }">
+          <button type="button" class="btn btn-primary" style="width:auto; padding:9px 14px;" onclick="addCalendarRecurringEvent()">+ Add</button>
+        </div>
+        <div class="recur-list" id="recurEventsList"></div>
+      </div>
+
+      <!-- Floating Calendar Window -->
       <div class="timeline-cal-drawer" id="timelineCalDrawer">
         <div class="tl-cal-top">
           <div class="tl-cal-title" id="tlCalMonthLabel"></div>
           <div class="tl-cal-nav">
             <button type="button" onclick="shiftTimelineCal(-1)">‹</button>
             <button type="button" onclick="shiftTimelineCal(1)">›</button>
+            <button type="button" onclick="closeFloatingTimelinePopups()" title="Close">×</button>
           </div>
         </div>
         <div class="tl-cal-grid" id="tlCalendarGrid"></div>
@@ -1390,15 +1845,34 @@
     <div class="subpage-pager" id="timelinePager"></div>
   </section>
 
-  <!-- View 4: Goal Action Plan Page -->
-  <section class="subpage-card" id="goalPlanView">
+  <!-- View 4A: Your Long Term Goals List Page -->
+  <section class="subpage-card" id="goalsOverviewPageView">
     <div class="subpage-header">
-      <h2>🎯 Action Plan — <span id="activeGoalTitle">Goal</span></h2>
+      <h2>🎯 Your Long Term Goals</h2>
       <button class="toggle-btn" onclick="openSubpage('matrix')">← Back to Matrix</button>
     </div>
-    <div class="action-tasks-bar">
-      <span>Tasks</span>
-      <button class="btn btn-primary" style="width:auto; padding:6px 14px;" onclick="addGoalTask()">+ Add Tasks</button>
+    <div class="declutter-input-row">
+      <input type="text" id="newGoalTitleInput" class="rich-input-box" style="flex:1; min-width:180px;" placeholder="What's next?" onkeydown="if(event.key==='Enter'){ event.preventDefault(); addGoalFromPage(); }">
+      <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addGoalFromPage()">+ Add Goal</button>
+    </div>
+    <div class="goals-page-grid" id="goalsPageList"></div>
+  </section>
+
+  <!-- View 4B: Goal Action Plan Page -->
+  <section class="subpage-card" id="goalPlanView">
+    <div class="subpage-header">
+      <div class="goal-plan-heading-row" id="goalPlanHeadingSlot"></div>
+      <div class="header-actions-group">
+        <button class="toggle-btn" onclick="openSubpage('goalsOverviewPage')">All Goals</button>
+        <button class="toggle-btn" onclick="openSubpage('matrix')">← Back to Matrix</button>
+      </div>
+    </div>
+    <div class="action-tasks-bar" onclick="toggleGoalTasksFold()">
+      <div class="tasks-fold-trigger">
+        <span id="goalTasksFoldIcon">›</span>
+        <span>Tasks</span>
+      </div>
+      <button type="button" class="plus-circle-btn" onclick="event.stopPropagation(); addGoalTask();" title="Add task">+</button>
     </div>
     <div id="goalTasksContainer"></div>
   </section>
@@ -1417,38 +1891,20 @@
     <div class="subpage-pager" id="diveSpacesPager"></div>
   </section>
 
-  <!-- View 6: Individual Dive Into Block Detail Page -->
+  <!-- View 6: Individual Dive Into Block Page -->
   <section class="subpage-card" id="diveSpaceDetailView">
     <div class="subpage-header">
       <h2 id="diveSpaceDetailTitle">Block</h2>
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="toggle-btn" onclick="openSubpage('diveInto')">← Dive Into</button>
-        <button class="toggle-btn" onclick="openSubpage('matrix')">Matrix</button>
+      <div class="header-actions-group">
+        <button type="button" class="plus-circle-btn" onclick="addDiveSection()" title="New section">+</button>
+        <button class="toggle-btn" onclick="openSubpage('diveInto')">Dive Into</button>
+        <button class="toggle-btn" onclick="openSubpage('matrix')">Back to Matrix</button>
       </div>
     </div>
 
-    <div class="dive-split-grid">
-      <!-- Left: To Be Completed -->
-      <div class="dive-panel">
-        <h3>To Be Completed</h3>
-        <div class="declutter-input-row" style="margin-bottom:12px;">
-          <div id="diveTbcInput" class="rich-input-box" contenteditable="true" data-placeholder="Add task..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); addDiveTbcItem(); }"></div>
-          <button class="btn btn-primary" style="width:auto; padding:0 14px;" onclick="addDiveTbcItem()">+ Add</button>
-        </div>
-        <div id="diveTbcList"></div>
-        <div class="subpage-pager" id="diveTbcPager"></div>
-      </div>
-
-      <!-- Right: Already Done -->
-      <div class="dive-panel">
-        <h3>Already Done</h3>
-        <div class="declutter-input-row" style="margin-bottom:12px;">
-          <div id="diveCompletedInput" class="rich-input-box" contenteditable="true" data-placeholder="Finished something? Add it" onkeydown="if(event.key==='Enter'){ event.preventDefault(); addDiveCompletedDirect(); }"></div>
-          <button class="btn btn-primary" style="width:auto; padding:0 14px;" onclick="addDiveCompletedDirect()">+ Add</button>
-        </div>
-        <div id="diveCompletedList"></div>
-        <div class="subpage-pager" id="diveDonePager"></div>
-      </div>
+    <div class="block-canvas-shell" id="diveBlockCanvas">
+      <input type="file" id="blockPhotoFileInput" accept="image/*" style="display:none;" onchange="onBlockPhotoPicked(this)">
+      <div id="diveSectionsContainer"></div>
     </div>
   </section>
 </main>
@@ -1462,8 +1918,33 @@ function getLocalTodayISO() {
   return `${y}-${m}-${d}`;
 }
 
+function isoFromDateObj(dt) {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getMondayOfWeek(isoStr) {
+  const parts = String(isoStr || '').split('-').map(Number);
+  const dt = (parts.length === 3) ? new Date(parts[0], parts[1] - 1, parts[2]) : new Date();
+  const day = dt.getDay();
+  const diffToMon = (day + 6) % 7;
+  dt.setDate(dt.getDate() - diffToMon);
+  dt.setHours(0, 0, 0, 0);
+  return dt;
+}
+
+function getWeekdayIndex(isoStr) {
+  const parts = String(isoStr || '').split('-').map(Number);
+  if (parts.length !== 3) return 0;
+  const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+  return Number.isNaN(dt.getTime()) ? 0 : dt.getDay();
+}
+
 const TODAY = getLocalTodayISO();
 const WEEKDAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MON_SUN_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const DIVE_PALETTE = [
   '#dbeafe',
@@ -1474,7 +1955,6 @@ const DIVE_PALETTE = [
   '#fce7f3'
 ];
 
-/* Light, clean shades of blue compatible with Dark Theme */
 const DIVE_DARK_PALETTE = [
   '#dbeafe',
   '#cfe3ff',
@@ -1483,6 +1963,12 @@ const DIVE_DARK_PALETTE = [
   '#cbe0fd',
   '#e2edff'
 ];
+
+const SECTION_TINTS = {
+  white: ['#f8fafc', '#f0fdf4', '#eff6ff', '#fdf4ff', '#fffbeb', '#f0fdfa'],
+  yellow: ['#fef9c3', '#fef3c7', '#ecfccb', '#ffedd5', '#e0f2fe', '#fce7f3'],
+  dark: ['#dbeafe', '#cfe3ff', '#e0f2fe', '#d4e6ff', '#cbe0fd', '#e2edff']
+};
 
 const TIMELINE_EVENT_COLORS = [
   '#bae6fd',
@@ -1498,17 +1984,27 @@ const DIVE_BLOCK_PAGE_SIZE = 8;
 
 let viewYear = new Date().getFullYear();
 let viewMonth = new Date().getMonth();
+let weekAnchorMonday = getMondayOfWeek(TODAY);
 let tlCalYear = new Date().getFullYear();
 let tlCalMonth = new Date().getMonth();
 let yourCalendarOpen = false;
+let recurPopoverOpen = false;
 let selectedTimelineDate = null;
 let selectedLogDateISO = TODAY;
+let pendingPhotoTarget = null;
+let savedSelectionRange = null;
+let openSectionMenuId = null;
+let openNoteMenuId = null;
+let openGoalMenu = false;
+let renamingGoalActive = false;
+let editingSectionTitleId = null;
+let editingSubsectionTitleId = null;
+let editingNoteId = null;
+let goalTasksCollapsed = true;
 
 let dymPage = 1;
 let timelinePage = 1;
 let diveSpacesPage = 1;
-let diveTbcPage = 1;
-let diveDonePage = 1;
 
 let currentView = 'matrix';
 let activeGoalId = null;
@@ -1530,6 +2026,7 @@ const DEFAULT_DATA = {
   notes: {},
   braindump: [],
   timeline: [],
+  calendarRecurring: [],
   goals: [],
   diveSpaces: []
 };
@@ -1542,6 +2039,7 @@ function normalizeState(rawObj) {
   if (!merged.theme) merged.theme = "white";
   if (!Array.isArray(merged.braindump)) merged.braindump = [];
   if (!Array.isArray(merged.timeline)) merged.timeline = [];
+  if (!Array.isArray(merged.calendarRecurring)) merged.calendarRecurring = [];
   if (!Array.isArray(merged.goals)) merged.goals = [];
   if (!Array.isArray(merged.diveSpaces)) merged.diveSpaces = [];
 
@@ -1554,12 +2052,47 @@ function normalizeState(rawObj) {
     status: Number(ev.status) || 0
   }));
 
+  merged.calendarRecurring = merged.calendarRecurring.map((rev, idx) => {
+    const startDate = rev.startDate || rev.date || TODAY;
+    return {
+      id: rev.id || ('rec' + idx + '_' + Date.now()),
+      startDate,
+      weekday: typeof rev.weekday === 'number' ? rev.weekday : getWeekdayIndex(startDate),
+      time: typeof rev.time === 'string' ? rev.time : '',
+      title: rev.title || ''
+    };
+  });
+
   merged.diveSpaces = merged.diveSpaces.map((sp, idx) => ({
     id: sp.id || ('ds' + idx + '_' + Date.now()),
     name: sp.name || ('Block ' + (idx + 1)),
     color: sp.color || DIVE_PALETTE[idx % DIVE_PALETTE.length],
-    tbc: Array.isArray(sp.tbc) ? sp.tbc : [],
-    completed: Array.isArray(sp.completed) ? sp.completed : []
+    sections: Array.isArray(sp.sections)
+      ? sp.sections.map((sec, sIdx) => ({
+          id: sec.id || ('sec_' + sIdx + '_' + Date.now()),
+          title: sec.title || ('Section ' + (sIdx + 1)),
+          collapsed: true,
+          bullets: Array.isArray(sec.bullets) ? sec.bullets : [],
+          plainBullets: Array.isArray(sec.plainBullets) ? sec.plainBullets : [],
+          subsections: Array.isArray(sec.subsections)
+            ? sec.subsections.map((sub, uIdx) => ({
+                id: sub.id || ('subsec_' + uIdx + '_' + Date.now()),
+                title: sub.title || ('Subsection ' + (uIdx + 1)),
+                collapsed: true,
+                bullets: Array.isArray(sub.bullets) ? sub.bullets : []
+              }))
+            : [],
+          photos: Array.isArray(sec.photos) ? sec.photos : [],
+          notes: Array.isArray(sec.notes)
+            ? sec.notes.map((n, nIdx) => ({
+                id: n.id || ('note_' + nIdx + '_' + Date.now()),
+                text: n.text || '',
+                timesNewRoman: true,
+                expanded: false
+              }))
+            : []
+        }))
+      : []
   }));
 
   const validDates = Array.isArray(merged.dates)
@@ -1580,6 +2113,13 @@ function formatDateDMY(isoStr) {
   const parts = clean.split('-');
   if (parts.length !== 3) return clean;
   return `${Number(parts[2])}/${Number(parts[1])}/${parts[0]}`;
+}
+
+function formatDateDMShort(isoStr) {
+  const clean = String(isoStr || '').split('_')[0];
+  const parts = clean.split('-');
+  if (parts.length !== 3) return clean;
+  return `${Number(parts[2])}/${Number(parts[1])}`;
 }
 
 function parseDmyToISO(dmyStr) {
@@ -1630,6 +2170,7 @@ function normalizeDmyInputBlur() {
 
 setLogDateControls(TODAY);
 document.getElementById('tlDateInput').value = TODAY;
+document.getElementById('recurDateInput').value = TODAY;
 
 function getWeekdayShort(isoStr) {
   const clean = String(isoStr || '').split('_')[0];
@@ -1679,6 +2220,112 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+/* Selection Quick-Bar */
+function applyQuickStyle(cmd, val = null) {
+  document.execCommand(cmd, false, val);
+  hideSelectionBar();
+}
+
+function toggleActiveFontStyle() {
+  const wrap = document.getElementById('selectionPopWrap');
+  const editable = wrap?._targetEditable;
+  if (editable) {
+    const cur = editable.style.fontFamily || '';
+    editable.style.fontFamily = cur.includes('Times New Roman')
+      ? '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      : '"Times New Roman", Times, Georgia, serif';
+  }
+  hideSelectionBar();
+}
+
+function toggleEmojiTray() {
+  const tray = document.getElementById('emojiQuickTray');
+  if (tray) tray.classList.toggle('open');
+}
+
+function insertEmojiAtCaret(emoji) {
+  const wrap = document.getElementById('selectionPopWrap');
+  const editable = wrap?._targetEditable;
+  if (editable) {
+    editable.focus();
+    const sel = window.getSelection();
+    if (savedSelectionRange && sel) {
+      sel.removeAllRanges();
+      sel.addRange(savedSelectionRange);
+    }
+    document.execCommand('insertText', false, emoji);
+  }
+  hideSelectionBar();
+}
+
+function hideSelectionBar() {
+  const wrap = document.getElementById('selectionPopWrap');
+  const tray = document.getElementById('emojiQuickTray');
+  if (tray) tray.classList.remove('open');
+  if (wrap) {
+    wrap.style.display = 'none';
+    wrap._targetEditable = null;
+  }
+}
+
+document.addEventListener('selectionchange', () => {
+  const sel = window.getSelection();
+  const wrap = document.getElementById('selectionPopWrap');
+  if (!sel || !wrap || sel.isCollapsed || !sel.rangeCount) return;
+  const anchorNode = sel.anchorNode;
+  const host = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
+  const editable = host ? host.closest('[contenteditable="true"]') : null;
+  if (!editable || !sel.toString().trim()) return;
+  const range = sel.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  if (!rect.width && !rect.height) return;
+
+  savedSelectionRange = range.cloneRange();
+  wrap._targetEditable = editable;
+  wrap.style.left = `${Math.max(70, Math.min(window.innerWidth - 70, rect.left + rect.width / 2))}px`;
+  wrap.style.top = `${Math.max(46, rect.top)}px`;
+  wrap.style.display = 'flex';
+});
+
+document.addEventListener('mousedown', (e) => {
+  const wrap = document.getElementById('selectionPopWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    hideSelectionBar();
+  }
+  let rerenderDive = false;
+  if (!e.target.closest('.sec-menu-wrap') && openSectionMenuId) {
+    openSectionMenuId = null;
+    rerenderDive = true;
+  }
+  if (!e.target.closest('.note-more-wrap') && openNoteMenuId) {
+    openNoteMenuId = null;
+    rerenderDive = true;
+  }
+  if (rerenderDive && currentView === 'diveSpaceDetail') {
+    renderDiveSpaceDetail();
+  }
+  if (!e.target.closest('.goal-menu-wrap') && openGoalMenu) {
+    openGoalMenu = false;
+    if (currentView === 'goalPlan') renderGoalActionPlan();
+  }
+  if (!e.target.closest('.your-cal-bar') && (yourCalendarOpen || recurPopoverOpen)) {
+    closeFloatingTimelinePopups();
+  }
+});
+
+/* Lightbox Image Viewer */
+function openPhotoLightbox(src) {
+  const backdrop = document.getElementById('photoLightboxBackdrop');
+  const img = document.getElementById('photoLightboxImg');
+  if (img) img.src = src;
+  if (backdrop) backdrop.classList.add('open');
+}
+
+function closePhotoLightbox() {
+  const backdrop = document.getElementById('photoLightboxBackdrop');
+  if (backdrop) backdrop.classList.remove('open');
+}
+
 function save() {
   applyTheme();
   localStorage.setItem('iqraMatrixCleanV1', JSON.stringify(state));
@@ -1691,8 +2338,12 @@ function applyTheme() {
   const t = state.theme || 'white';
   document.body.setAttribute('data-theme', t);
   const metaColor = document.getElementById('metaThemeColor');
+  const metaIosBar = document.getElementById('metaIosStatusBar');
   if (metaColor) {
     metaColor.setAttribute('content', t === 'dark' ? '#090d16' : t === 'yellow' ? '#fef9c3' : '#ffffff');
+  }
+  if (metaIosBar) {
+    metaIosBar.setAttribute('content', t === 'dark' ? 'black-translucent' : 'default');
   }
   ['white', 'yellow', 'dark'].forEach(name => {
     const btn = document.getElementById('theme-' + name);
@@ -1706,9 +2357,10 @@ function setTheme(t) {
   save();
   renderTableOnly();
   if (currentView === 'diveInto') renderDiveSpacesGrid();
+  if (currentView === 'diveSpaceDetail') renderDiveSpaceDetail();
+  if (currentView === 'timeline') renderTimelineCalendar();
 }
 
-/* Sidebar Open / Close & Mobile Swipe Gestures */
 function openSidebar() {
   const sb = document.getElementById('sidebar');
   const bd = document.getElementById('sidebarBackdrop');
@@ -1787,22 +2439,40 @@ function toggleAccordion(id) {
   if (el) el.classList.toggle('open');
 }
 
-/* Sub-Page Navigation */
+function resetCollapsibleStates() {
+  document.querySelectorAll('.acc-card.open').forEach(el => el.classList.remove('open'));
+  openSectionMenuId = null;
+  openNoteMenuId = null;
+  openGoalMenu = false;
+  renamingGoalActive = false;
+  editingSectionTitleId = null;
+  editingSubsectionTitleId = null;
+  editingNoteId = null;
+  goalTasksCollapsed = true;
+  yourCalendarOpen = false;
+  recurPopoverOpen = false;
+  selectedTimelineDate = null;
+
+  state.diveSpaces.forEach(sp => {
+    (sp.sections || []).forEach(sec => {
+      sec.collapsed = true;
+      (sec.subsections || []).forEach(sub => { sub.collapsed = true; });
+      (sec.notes || []).forEach(n => { n.expanded = false; });
+    });
+  });
+}
+
 function openSubpage(viewName, extraId = null) {
+  hideSelectionBar();
+  resetCollapsibleStates();
   currentView = viewName;
   if (viewName === 'goalPlan' && extraId) activeGoalId = extraId;
-  if (viewName === 'diveSpaceDetail' && extraId) {
-    activeDiveSpaceId = extraId;
-    diveTbcPage = 1;
-    diveDonePage = 1;
-  }
-  if (viewName === 'timeline') {
-    selectedTimelineDate = null;
-  }
+  if (viewName === 'diveSpaceDetail' && extraId) activeDiveSpaceId = extraId;
 
   document.getElementById('matrixView').style.display = (viewName === 'matrix') ? 'block' : 'none';
   document.getElementById('declutterView').classList.toggle('active', viewName === 'declutter');
   document.getElementById('timelineView').classList.toggle('active', viewName === 'timeline');
+  document.getElementById('goalsOverviewPageView').classList.toggle('active', viewName === 'goalsOverviewPage');
   document.getElementById('goalPlanView').classList.toggle('active', viewName === 'goalPlan');
   document.getElementById('diveIntoView').classList.toggle('active', viewName === 'diveInto');
   document.getElementById('diveSpaceDetailView').classList.toggle('active', viewName === 'diveSpaceDetail');
@@ -1812,12 +2482,13 @@ function openSubpage(viewName, extraId = null) {
 
   if (viewName === 'declutter') renderDeclutterList();
   if (viewName === 'timeline') renderTimelineSection();
+  if (viewName === 'goalsOverviewPage') renderGoalsOverviewPage();
   if (viewName === 'goalPlan') renderGoalActionPlan();
   if (viewName === 'diveInto') renderDiveSpacesGrid();
   if (viewName === 'diveSpaceDetail') renderDiveSpaceDetail();
 
   if (window.innerWidth <= 768) closeSidebar();
-  window.scrollTo(0, 0);
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 }
 
 function updateFloatingPaginationVisibility() {
@@ -1927,7 +2598,7 @@ function renderDeclutterList() {
   renderInlinePager('dymPager', dymPage, state.braindump.length, SUBPAGE_SIZE, 'setDymPage');
 }
 
-/* Your Upcoming Timeline + Expandable "Your Calendar" */
+/* Your Upcoming Timeline + Floating Popups */
 function addTimelineItem() {
   const d = document.getElementById('tlDateInput').value;
   const timeText = (document.getElementById('tlTimeTextInput').value || '').trim();
@@ -1957,6 +2628,98 @@ function addTimelineItem() {
   renderTimelineSection();
 }
 
+function closeFloatingTimelinePopups() {
+  yourCalendarOpen = false;
+  recurPopoverOpen = false;
+  selectedTimelineDate = null;
+  syncTimelinePanels();
+}
+
+function toggleRecurPopover() {
+  const nextState = !recurPopoverOpen;
+  yourCalendarOpen = false;
+  selectedTimelineDate = null;
+  recurPopoverOpen = nextState;
+  syncTimelinePanels();
+  if (recurPopoverOpen) renderRecurList();
+}
+
+function addCalendarRecurringEvent() {
+  const startDate = document.getElementById('recurDateInput').value || TODAY;
+  const timeStr = (document.getElementById('recurTimeInput').value || '').trim();
+  const titleStr = (document.getElementById('recurTitleInput').value || '').trim();
+  if (!titleStr) return;
+
+  pushUndo();
+  state.calendarRecurring.push({
+    id: 'rec' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    startDate,
+    weekday: getWeekdayIndex(startDate),
+    time: timeStr,
+    title: titleStr
+  });
+  const parts = startDate.split('-').map(Number);
+  if (parts.length === 3) {
+    tlCalYear = parts[0];
+    tlCalMonth = parts[1] - 1;
+  }
+  document.getElementById('recurTitleInput').value = '';
+  document.getElementById('recurTimeInput').value = '';
+  save();
+  renderRecurList();
+  if (yourCalendarOpen) renderTimelineCalendar();
+}
+
+function deleteCalendarRecurringEvent(recId) {
+  pushUndo();
+  state.calendarRecurring = state.calendarRecurring.filter(r => r.id !== recId);
+  save();
+  renderRecurList();
+  if (yourCalendarOpen) renderTimelineCalendar();
+}
+
+function renderRecurList() {
+  const box = document.getElementById('recurEventsList');
+  if (!box) return;
+  if (!state.calendarRecurring.length) {
+    box.innerHTML = '';
+    return;
+  }
+  box.innerHTML = state.calendarRecurring.map(r => {
+    const wk = WEEKDAYS_SHORT[r.weekday ?? getWeekdayIndex(r.startDate)];
+    return `
+      <div class="recur-pill-row">
+        <span><b>${escapeHtml(r.title)}</b> <span style="color:var(--muted); font-size:11px;">${wk}${r.time ? ' · ' + escapeHtml(r.time) : ''}</span></span>
+        <button type="button" class="del-date" style="float:none;" onclick="deleteCalendarRecurringEvent('${r.id}')" title="Remove">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function getCalendarEntriesForDate(isoDate) {
+  const list = [];
+  state.timeline.forEach(ev => {
+    if (ev.date === isoDate) {
+      list.push({
+        label: stripHtmlToText(ev.activity) || 'Event',
+        time: formatEventTimeDisplay(ev)
+      });
+    }
+  });
+  const wd = getWeekdayIndex(isoDate);
+  state.calendarRecurring.forEach(rev => {
+    const start = rev.startDate || TODAY;
+    const rWd = typeof rev.weekday === 'number' ? rev.weekday : getWeekdayIndex(start);
+    if (isoDate >= start && wd === rWd) {
+      list.push({
+        label: rev.title,
+        time: rev.time || ''
+      });
+    }
+  });
+  return list;
+}
+
 function toggleTimelineStatus(id) {
   const item = state.timeline.find(x => x.id === id);
   if (!item) return;
@@ -1972,7 +2735,7 @@ function updateTimelineActivity(id, newHtml) {
   pushUndo();
   item.activity = newHtml;
   save();
-  renderTimelineCalendar();
+  if (yourCalendarOpen) renderTimelineCalendar();
 }
 
 function deleteTimelineItem(id) {
@@ -1983,17 +2746,25 @@ function deleteTimelineItem(id) {
 }
 
 function toggleYourCalendar() {
-  yourCalendarOpen = !yourCalendarOpen;
-  if (!yourCalendarOpen) selectedTimelineDate = null;
-  syncCalendarDrawerUI();
+  const nextState = !yourCalendarOpen;
+  recurPopoverOpen = false;
+  yourCalendarOpen = nextState;
+  if (!yourCalendarOpen) {
+    selectedTimelineDate = null;
+  }
+  syncTimelinePanels();
   if (yourCalendarOpen) renderTimelineCalendar();
 }
 
-function syncCalendarDrawerUI() {
+function syncTimelinePanels() {
   const chip = document.getElementById('yourCalendarChip');
   const drawer = document.getElementById('timelineCalDrawer');
+  const recBtn = document.getElementById('recurToggleBtn');
+  const recPop = document.getElementById('recurPopover');
   if (chip) chip.classList.toggle('open', yourCalendarOpen);
   if (drawer) drawer.classList.toggle('open', yourCalendarOpen);
+  if (recBtn) recBtn.classList.toggle('active', recurPopoverOpen);
+  if (recPop) recPop.classList.toggle('open', recurPopoverOpen);
 }
 
 function shiftTimelineCal(delta) {
@@ -2019,7 +2790,7 @@ function getDateColor(isoDate) {
 }
 
 function renderTimelineCalendar() {
-  syncCalendarDrawerUI();
+  syncTimelinePanels();
   if (!yourCalendarOpen) return;
 
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -2031,10 +2802,12 @@ function renderTimelineCalendar() {
   labelEl.textContent = `${monthNames[tlCalMonth]} ${tlCalYear}`;
 
   const eventsByDate = {};
-  state.timeline.forEach(ev => {
-    if (!eventsByDate[ev.date]) eventsByDate[ev.date] = [];
-    eventsByDate[ev.date].push(ev);
-  });
+  const daysInMonth = new Date(tlCalYear, tlCalMonth + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dStr = `${tlCalYear}-${String(tlCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const entries = getCalendarEntriesForDate(dStr);
+    if (entries.length) eventsByDate[dStr] = entries;
+  }
 
   const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   let html = dows.map(d => `<div class="tl-cal-dow">${d}</div>`).join('');
@@ -2045,18 +2818,18 @@ function renderTimelineCalendar() {
     html += `<div class="tl-cal-day empty"></div>`;
   }
 
-  const daysInMonth = new Date(tlCalYear, tlCalMonth + 1, 0).getDate();
   for (let day = 1; day <= daysInMonth; day++) {
     const dStr = `${tlCalYear}-${String(tlCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayEvents = eventsByDate[dStr] || [];
     const hasEv = dayEvents.length > 0;
     const isSel = selectedTimelineDate === dStr;
+    const isToday = dStr === TODAY;
     const bgColor = hasEv ? getDateColor(dStr) : '';
 
     html += `
       <button
         type="button"
-        class="tl-cal-day ${hasEv ? 'has-event' : ''} ${isSel ? 'selected-day' : ''}"
+        class="tl-cal-day ${hasEv ? 'has-event' : ''} ${isSel ? 'selected-day' : ''} ${isToday ? 'today-ring' : ''}"
         style="${hasEv ? `background:${bgColor};` : ''}"
         onclick="selectTimelineCalendarDate('${dStr}')"
       >${day}</button>
@@ -2074,10 +2847,8 @@ function renderTimelineCalendar() {
   const badgeColor = getDateColor(selectedTimelineDate);
   detailBox.style.display = 'flex';
   detailBox.innerHTML = selEvents.map(ev => {
-    const name = escapeHtml(stripHtmlToText(ev.activity) || 'Event');
-    const timeStr = formatEventTimeDisplay(ev);
-    const timePart = timeStr ? `<span class="tl-time-badge">${escapeHtml(timeStr)}</span>` : '';
-    return `<span class="tl-event-only-pill" style="background:${badgeColor};">${name}${timePart}</span>`;
+    const timePart = ev.time ? `<span class="tl-time-badge">${escapeHtml(ev.time)}</span>` : '';
+    return `<span class="tl-event-only-pill" style="background:${badgeColor};">${escapeHtml(ev.label)}${timePart}</span>`;
   }).join('');
 }
 
@@ -2127,68 +2898,99 @@ function renderTimelineTable() {
 }
 
 function renderTimelineSection() {
+  renderRecurList();
   renderTimelineCalendar();
   renderTimelineTable();
 }
 
-/* Your Long Term Goals & Goals Overview */
-function addGoal() {
+/* Your Long Term Goals Page + Goal Action Plan + Goals Overview */
+function addGoalFromPage() {
+  const inp = document.getElementById('newGoalTitleInput');
+  const name = (inp?.value || '').trim();
+  if (!name) return;
   pushUndo();
-  const nextNum = state.goals.length + 1;
-  const newGoal = {
+  state.goals.push({
     id: 'g' + Date.now(),
-    name: `Goal ${nextNum}`,
+    name,
     tasks: []
-  };
-  state.goals.push(newGoal);
+  });
+  inp.value = '';
   save();
-  renderGoalsSidebar();
+  renderGoalsOverviewPage();
   renderGoalsOverview();
 }
 
-function renameGoal(goalId, newName) {
-  const g = state.goals.find(x => x.id === goalId);
-  const clean = newName.trim();
-  if (!g || !clean || g.name === clean) return;
-  pushUndo();
-  g.name = clean;
-  save();
-  renderGoalsOverview();
-  if (currentView === 'goalPlan' && activeGoalId === goalId) {
-    document.getElementById('activeGoalTitle').innerText = clean;
-  }
-}
-
-function deleteGoal(goalId) {
+function deleteGoal(goalId, ev = null) {
+  if (ev) ev.stopPropagation();
   pushUndo();
   state.goals = state.goals.filter(x => x.id !== goalId);
   save();
-  renderGoalsSidebar();
+  renderGoalsOverviewPage();
   renderGoalsOverview();
   if (currentView === 'goalPlan' && activeGoalId === goalId) {
-    openSubpage('matrix');
+    openSubpage('goalsOverviewPage');
   }
 }
 
-function renderGoalsSidebar() {
-  const wrap = document.getElementById('goalsSideList');
+function toggleGoalMenuDropdown(ev) {
+  if (ev) ev.stopPropagation();
+  openGoalMenu = !openGoalMenu;
+  renderGoalActionPlan();
+}
+
+function startRenamingGoal(ev) {
+  if (ev) ev.stopPropagation();
+  openGoalMenu = false;
+  renamingGoalActive = true;
+  renderGoalActionPlan();
+  requestAnimationFrame(() => {
+    const inp = document.getElementById('goalInlineRenameInput');
+    if (inp) {
+      inp.focus();
+      inp.select();
+    }
+  });
+}
+
+function commitGoalRename(newName) {
+  const g = state.goals.find(x => x.id === activeGoalId);
+  renamingGoalActive = false;
+  const clean = (newName || '').trim();
+  if (g && clean && g.name !== clean) {
+    pushUndo();
+    g.name = clean;
+    save();
+    renderGoalsOverviewPage();
+    renderGoalsOverview();
+  }
+  renderGoalActionPlan();
+}
+
+function renderGoalsOverviewPage() {
+  const grid = document.getElementById('goalsPageList');
+  if (!grid) return;
   if (!state.goals.length) {
-    wrap.innerHTML = '';
+    grid.innerHTML = '';
     return;
   }
-  wrap.innerHTML = state.goals.map(g => `
-    <div class="goal-side-row">
-      <input class="goal-name-input" type="text" value="${escapeHtml(g.name)}" onchange="renameGoal('${g.id}', this.value)" title="Click to rename goal">
-      <button type="button" class="goal-open-pill" onclick="openSubpage('goalPlan', '${g.id}')">Open</button>
-      <button type="button" class="del-date" style="float:none;" onclick="deleteGoal('${g.id}')" title="Delete goal">×</button>
+  grid.innerHTML = state.goals.map(g => `
+    <div class="goal-page-card" onclick="openSubpage('goalPlan', '${g.id}')">
+      <button type="button" class="goal-card-del-btn" onclick="deleteGoal('${g.id}', event)" title="Delete goal">×</button>
+      <div class="goal-page-card-title">${escapeHtml(g.name)}</div>
     </div>
   `).join('');
+}
+
+function toggleGoalTasksFold() {
+  goalTasksCollapsed = !goalTasksCollapsed;
+  renderGoalActionPlan();
 }
 
 function addGoalTask() {
   const g = state.goals.find(x => x.id === activeGoalId);
   if (!g) return;
   pushUndo();
+  goalTasksCollapsed = false;
   g.tasks.push({
     id: 'gt' + Date.now(),
     detail: '',
@@ -2201,8 +3003,7 @@ function addGoalTask() {
 
 function toggleGoalTaskStatus(taskId) {
   const g = state.goals.find(x => x.id === activeGoalId);
-  if (!g) return;
-  const t = g.tasks.find(x => x.id === taskId);
+  const t = g?.tasks.find(x => x.id === taskId);
   if (!t) return;
   pushUndo();
   t.status = ((t.status || 0) + 1) % 3;
@@ -2226,6 +3027,7 @@ function updateGoalTaskDate(taskId, val) {
   pushUndo();
   t.date = val;
   save();
+  renderGoalActionPlan();
 }
 
 function deleteGoalTask(taskId) {
@@ -2240,11 +3042,36 @@ function deleteGoalTask(taskId) {
 function renderGoalActionPlan() {
   const g = state.goals.find(x => x.id === activeGoalId);
   if (!g) {
-    openSubpage('matrix');
+    openSubpage('goalsOverviewPage');
     return;
   }
-  document.getElementById('activeGoalTitle').innerText = g.name;
+
+  const headingSlot = document.getElementById('goalPlanHeadingSlot');
+  if (headingSlot) {
+    const titlePart = renamingGoalActive
+      ? `<input id="goalInlineRenameInput" type="text" class="goal-inline-rename-input" value="${escapeHtml(g.name)}" onkeydown="if(event.key==='Enter'){ event.preventDefault(); this.blur(); }" onblur="commitGoalRename(this.value)">`
+      : `<h2 style="margin:0; font-size:20px; font-weight:800;">🎯 ${escapeHtml(g.name)}</h2>`;
+
+    headingSlot.innerHTML = `
+      ${titlePart}
+      <span class="goal-action-plan-badge">Action Plan</span>
+      <div class="sec-menu-wrap goal-menu-wrap" onclick="event.stopPropagation()">
+        <button type="button" class="sec-menu-trigger" onclick="toggleGoalMenuDropdown(event)" title="Goal options">⋮</button>
+        <div class="sec-dropdown-menu ${openGoalMenu ? 'open' : ''}">
+          <button type="button" class="sec-dropdown-item" onclick="startRenamingGoal(event)">Rename Goal</button>
+        </div>
+      </div>
+    `;
+  }
+
+  const foldIcon = document.getElementById('goalTasksFoldIcon');
+  if (foldIcon) foldIcon.textContent = goalTasksCollapsed ? '›' : '▾';
+
   const box = document.getElementById('goalTasksContainer');
+  if (goalTasksCollapsed) {
+    box.innerHTML = '';
+    return;
+  }
 
   if (!g.tasks.length) {
     box.innerHTML = '';
@@ -2267,14 +3094,13 @@ function renderGoalActionPlan() {
         <div class="goal-task-footer">
           <span>Target Date:</span>
           <input type="date" value="${t.date || ''}" onchange="updateGoalTaskDate('${t.id}', this.value)">
-          ${t.date ? `<span>(${formatDateDMY(t.date)})</span>` : ''}
+          ${t.date ? `<span class="goal-target-dmy">${formatDateDMY(t.date)}</span>` : ''}
         </div>
       </div>
     `;
   }).join('');
 }
 
-/* Orange (status === 2) is strictly ignored: neither increases nor decreases completion % */
 function renderGoalsOverview() {
   const wrap = document.getElementById('goalsOverviewBars');
   if (!state.goals.length) {
@@ -2291,7 +3117,7 @@ function renderGoalsOverview() {
 
     return `
       <div class="bar-row" style="margin-bottom:8px;">
-        <span class="bar-label" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}</span>
+        <span class="bar-label" style="width:82px;" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}</span>
         <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
         <strong style="white-space:nowrap;">${pct}% completed</strong>
       </div>
@@ -2299,7 +3125,7 @@ function renderGoalsOverview() {
   }).join('');
 }
 
-/* Dive Into Blocks & To Be Completed / Already Done */
+/* Dive Into Blocks + Collapsible Sections + Dropdown Actions */
 function getThemedBlockBg(sp, index) {
   const theme = state.theme || 'white';
   if (theme === 'dark') {
@@ -2312,9 +3138,29 @@ function getThemedBlockBg(sp, index) {
   return sp.color || DIVE_PALETTE[index % DIVE_PALETTE.length];
 }
 
+function getSectionTint(secIndex) {
+  const t = state.theme || 'white';
+  const palette = SECTION_TINTS[t] || SECTION_TINTS.white;
+  return palette[secIndex % palette.length];
+}
+
+function toggleSectionDropdown(secId, ev) {
+  if (ev) ev.stopPropagation();
+  openNoteMenuId = null;
+  openSectionMenuId = (openSectionMenuId === secId) ? null : secId;
+  renderDiveSpaceDetail();
+}
+
+function toggleNoteDropdown(noteId, ev) {
+  if (ev) ev.stopPropagation();
+  openSectionMenuId = null;
+  openNoteMenuId = (openNoteMenuId === noteId) ? null : noteId;
+  renderDiveSpaceDetail();
+}
+
 function addDiveSpace() {
   const inp = document.getElementById('diveSpaceNameInput');
-  const name = (inp.value || '').trim();
+  const name = inp.value.trim();
   if (!name) return;
   pushUndo();
   const color = DIVE_PALETTE[state.diveSpaces.length % DIVE_PALETTE.length];
@@ -2322,8 +3168,7 @@ function addDiveSpace() {
     id: 'ds' + Date.now(),
     name,
     color,
-    tbc: [],
-    completed: []
+    sections: []
   });
   diveSpacesPage = Math.max(1, Math.ceil(state.diveSpaces.length / DIVE_BLOCK_PAGE_SIZE));
   inp.value = '';
@@ -2379,107 +3224,474 @@ function getActiveDiveSpace() {
   return state.diveSpaces.find(s => s.id === activeDiveSpaceId) || null;
 }
 
-function addDiveTbcItem() {
+function addDiveSection() {
   const sp = getActiveDiveSpace();
   if (!sp) return;
-  const inp = document.getElementById('diveTbcInput');
-  const plain = inp.innerText.trim();
-  const html = inp.innerHTML.trim();
-  if (!plain) return;
-
   pushUndo();
-  sp.tbc.push({
-    id: 'dtbc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-    text: html
+  openSectionMenuId = null;
+  sp.sections.push({
+    id: 'sec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    title: `Section ${sp.sections.length + 1}`,
+    collapsed: false,
+    bullets: [],
+    plainBullets: [],
+    subsections: [],
+    photos: [],
+    notes: []
   });
-  diveTbcPage = Math.max(1, Math.ceil(sp.tbc.length / SUBPAGE_SIZE));
-  inp.innerHTML = '';
   save();
   renderDiveSpaceDetail();
 }
 
-function completeDiveTbcItem(tbcId) {
+function handleSectionBarClick(secId) {
+  if (editingSectionTitleId === secId) return;
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  sec.collapsed = !sec.collapsed;
+  openSectionMenuId = null;
+  localStorage.setItem('iqraMatrixCleanV1', JSON.stringify(state));
+  renderDiveSpaceDetail();
+}
+
+function triggerRenameDiveSection(secId, ev) {
+  if (ev) ev.stopPropagation();
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  sec.collapsed = false;
+  openSectionMenuId = null;
+  editingSectionTitleId = secId;
+  renderDiveSpaceDetail();
+  requestAnimationFrame(() => {
+    const el = document.querySelector(`[data-sec-title="${secId}"]`);
+    if (el) {
+      el.focus();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
+  });
+}
+
+function commitRenameDiveSection(secId, text) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  editingSectionTitleId = null;
+  const clean = (text || '').trim();
+  if (sec && clean && sec.title !== clean) {
+    pushUndo();
+    sec.title = clean;
+    save();
+  }
+  renderDiveSpaceDetail();
+}
+
+function deleteDiveSection(secId) {
   const sp = getActiveDiveSpace();
   if (!sp) return;
-  const idx = sp.tbc.findIndex(item => item.id === tbcId);
+  pushUndo();
+  openSectionMenuId = null;
+  sp.sections = sp.sections.filter(s => s.id !== secId);
+  save();
+  renderDiveSpaceDetail();
+}
+
+function addDiveSubsection(secId) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  pushUndo();
+  openSectionMenuId = null;
+  sec.collapsed = false;
+  sec.subsections.push({
+    id: 'subsec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    title: `Subsection ${sec.subsections.length + 1}`,
+    collapsed: true,
+    bullets: []
+  });
+  save();
+  renderDiveSpaceDetail();
+}
+
+function toggleSubsectionCollapse(secId, subId) {
+  if (editingSubsectionTitleId === subId) return;
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  const sub = sec?.subsections.find(u => u.id === subId);
+  if (!sub) return;
+  sub.collapsed = !(sub.collapsed !== false);
+  localStorage.setItem('iqraMatrixCleanV1', JSON.stringify(state));
+  renderDiveSpaceDetail();
+}
+
+function startRenameDiveSubsection(secId, subId, ev) {
+  if (ev) ev.stopPropagation();
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  const sub = sec?.subsections.find(u => u.id === subId);
+  if (!sub) return;
+  editingSubsectionTitleId = subId;
+  renderDiveSpaceDetail();
+  requestAnimationFrame(() => {
+    const el = document.querySelector(`[data-subsec-title="${subId}"]`);
+    if (el) {
+      el.focus();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
+  });
+}
+
+function renameDiveSubsection(secId, subId, text) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  const sub = sec?.subsections.find(u => u.id === subId);
+  editingSubsectionTitleId = null;
+  const clean = (text || '').trim();
+  if (sub && clean && sub.title !== clean) {
+    pushUndo();
+    sub.title = clean;
+    save();
+  }
+  renderDiveSpaceDetail();
+}
+
+function deleteDiveSubsection(secId, subId) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  pushUndo();
+  sec.subsections = sec.subsections.filter(u => u.id !== subId);
+  save();
+  renderDiveSpaceDetail();
+}
+
+function focusBulletElementById(bulId) {
+  requestAnimationFrame(() => {
+    const el = document.querySelector(`[data-bul-id="${bulId}"]`);
+    if (el) el.focus();
+  });
+}
+
+function addTickBullet(secId, subId = null, focusNew = false) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  pushUndo();
+  openSectionMenuId = null;
+  sec.collapsed = false;
+  const newBullet = {
+    id: 'bul_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    text: '',
+    ticked: false
+  };
+  if (subId) {
+    const sub = sec.subsections.find(u => u.id === subId);
+    if (!sub) return;
+    sub.collapsed = false;
+    sub.bullets.push(newBullet);
+  } else {
+    sec.bullets.push(newBullet);
+  }
+  save();
+  renderDiveSpaceDetail();
+  if (focusNew) focusBulletElementById(newBullet.id);
+}
+
+function handleTickBulletKeydown(ev, secId, subId, bulId, el) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  const list = subId ? sec.subsections.find(u => u.id === subId)?.bullets : sec.bullets;
+  const idx = list?.findIndex(b => b.id === bulId) ?? -1;
   if (idx === -1) return;
 
+  const plain = (el.innerText || '').trim();
+  if (ev.key === 'Enter') {
+    ev.preventDefault();
+    if (!plain) {
+      list.splice(idx, 1);
+      save();
+      renderDiveSpaceDetail();
+      return;
+    }
+    list[idx].text = el.innerHTML;
+    const nextBullet = {
+      id: 'bul_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+      text: '',
+      ticked: false
+    };
+    list.splice(idx + 1, 0, nextBullet);
+    save();
+    renderDiveSpaceDetail();
+    focusBulletElementById(nextBullet.id);
+    return;
+  }
+
+  if ((ev.key === 'Backspace' || ev.key === 'Delete') && !plain) {
+    ev.preventDefault();
+    const prevBullet = list[idx - 1];
+    list.splice(idx, 1);
+    save();
+    renderDiveSpaceDetail();
+    if (prevBullet) focusBulletElementById(prevBullet.id);
+  }
+}
+
+function toggleTickBullet(secId, subId, bulId) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  const list = subId ? sec.subsections.find(u => u.id === subId)?.bullets : sec.bullets;
+  const item = list?.find(b => b.id === bulId);
+  if (!item) return;
   pushUndo();
-  const [moved] = sp.tbc.splice(idx, 1);
-  sp.completed.unshift({
-    id: 'ddone_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-    text: moved.text,
-    fromTbc: true
+  item.ticked = !item.ticked;
+  save();
+  renderDiveSpaceDetail();
+}
+
+function editTickBulletText(secId, subId, bulId, htmlVal) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  const list = subId ? sec.subsections.find(u => u.id === subId)?.bullets : sec.bullets;
+  const item = list?.find(b => b.id === bulId);
+  if (!item || item.text === htmlVal) return;
+  pushUndo();
+  item.text = htmlVal;
+  save();
+}
+
+function addPlainBullet(secId, focusNew = false) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  pushUndo();
+  openSectionMenuId = null;
+  sec.collapsed = false;
+  if (!Array.isArray(sec.plainBullets)) sec.plainBullets = [];
+  const newItem = {
+    id: 'pbul_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    text: ''
+  };
+  sec.plainBullets.push(newItem);
+  save();
+  renderDiveSpaceDetail();
+  if (focusNew) focusBulletElementById(newItem.id);
+}
+
+function handlePlainBulletKeydown(ev, secId, pbulId, el) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec || !Array.isArray(sec.plainBullets)) return;
+  const idx = sec.plainBullets.findIndex(b => b.id === pbulId);
+  if (idx === -1) return;
+
+  const plain = (el.innerText || '').trim();
+  if (ev.key === 'Enter') {
+    ev.preventDefault();
+    if (!plain) {
+      sec.plainBullets.splice(idx, 1);
+      save();
+      renderDiveSpaceDetail();
+      return;
+    }
+    sec.plainBullets[idx].text = el.innerHTML;
+    const nextItem = {
+      id: 'pbul_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+      text: ''
+    };
+    sec.plainBullets.splice(idx + 1, 0, nextItem);
+    save();
+    renderDiveSpaceDetail();
+    focusBulletElementById(nextItem.id);
+    return;
+  }
+
+  if ((ev.key === 'Backspace' || ev.key === 'Delete') && !plain) {
+    ev.preventDefault();
+    const prevItem = sec.plainBullets[idx - 1];
+    sec.plainBullets.splice(idx, 1);
+    save();
+    renderDiveSpaceDetail();
+    if (prevItem) focusBulletElementById(prevItem.id);
+  }
+}
+
+function editPlainBulletText(secId, pbulId, htmlVal) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  const item = sec?.plainBullets?.find(b => b.id === pbulId);
+  if (!item || item.text === htmlVal) return;
+  pushUndo();
+  item.text = htmlVal;
+  save();
+}
+
+function addSectionNote(secId) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec) return;
+  pushUndo();
+  openSectionMenuId = null;
+  sec.collapsed = false;
+  if (!Array.isArray(sec.notes)) sec.notes = [];
+  sec.notes.push({
+    id: 'note_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    text: '',
+    timesNewRoman: true,
+    expanded: false
   });
-  diveDonePage = 1;
   save();
   renderDiveSpaceDetail();
 }
 
-function editDiveTbcItem(tbcId, newHtml) {
+function toggleSectionNoteExpanded(secId, noteId) {
   const sp = getActiveDiveSpace();
-  const item = sp?.tbc.find(x => x.id === tbcId);
-  if (!item || item.text === newHtml) return;
-  pushUndo();
-  item.text = newHtml;
-  save();
-}
-
-function deleteDiveTbcItem(tbcId) {
-  const sp = getActiveDiveSpace();
-  if (!sp) return;
-  pushUndo();
-  sp.tbc = sp.tbc.filter(x => x.id !== tbcId);
-  save();
+  const sec = sp?.sections.find(s => s.id === secId);
+  const note = sec?.notes?.find(n => n.id === noteId);
+  if (!note) return;
+  note.expanded = !note.expanded;
+  if (!note.expanded && editingNoteId === noteId) {
+    editingNoteId = null;
+  }
+  openNoteMenuId = null;
+  localStorage.setItem('iqraMatrixCleanV1', JSON.stringify(state));
   renderDiveSpaceDetail();
 }
 
-function addDiveCompletedDirect() {
-  const sp = getActiveDiveSpace();
-  if (!sp) return;
-  const inp = document.getElementById('diveCompletedInput');
-  const plain = inp.innerText.trim();
-  const html = inp.innerHTML.trim();
-  if (!plain) return;
-
-  pushUndo();
-  sp.completed.unshift({
-    id: 'ddone_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-    text: html,
-    fromTbc: false
+function startEditingNote(noteId) {
+  editingNoteId = noteId;
+  renderDiveSpaceDetail();
+  requestAnimationFrame(() => {
+    const area = document.querySelector(`[data-note-area="${noteId}"]`);
+    if (area) area.focus();
   });
-  diveDonePage = 1;
-  inp.innerHTML = '';
-  save();
-  renderDiveSpaceDetail();
 }
 
-function editDiveCompletedItem(doneId, newHtml) {
+function editSectionNoteText(secId, noteId, htmlVal) {
   const sp = getActiveDiveSpace();
-  const item = sp?.completed.find(x => x.id === doneId);
-  if (!item || item.text === newHtml) return;
+  const sec = sp?.sections.find(s => s.id === secId);
+  const note = sec?.notes?.find(n => n.id === noteId);
+  if (editingNoteId === noteId) editingNoteId = null;
+  const cleaned = (htmlVal || '').replace(/<b>\s*(<br>)?\s*<\/b>/gi, '').trim();
+  if (!note || note.text === cleaned) return;
   pushUndo();
-  item.text = newHtml;
+  note.text = cleaned;
   save();
 }
 
-function deleteDiveCompletedItem(doneId) {
+function deleteSectionNote(secId, noteId) {
   const sp = getActiveDiveSpace();
-  if (!sp) return;
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec || !Array.isArray(sec.notes)) return;
   pushUndo();
-  sp.completed = sp.completed.filter(x => x.id !== doneId);
+  openNoteMenuId = null;
+  if (editingNoteId === noteId) editingNoteId = null;
+  sec.notes = sec.notes.filter(n => n.id !== noteId);
   save();
   renderDiveSpaceDetail();
 }
 
-function setDiveTbcPage(p) {
-  diveTbcPage = p;
+function triggerBlockPhoto(secId) {
+  pendingPhotoTarget = secId;
+  openSectionMenuId = null;
+  const picker = document.getElementById('blockPhotoFileInput');
+  if (picker) {
+    picker.value = '';
+    picker.click();
+  }
+}
+
+function onBlockPhotoPicked(inputEl) {
+  const file = inputEl?.files?.[0];
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === pendingPhotoTarget);
+  pendingPhotoTarget = null;
+  if (!file || !sec) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (typeof reader.result !== 'string') return;
+    pushUndo();
+    sec.collapsed = false;
+    if (!Array.isArray(sec.photos)) sec.photos = [];
+    sec.photos.push({
+      id: 'pic_' + Date.now(),
+      src: reader.result
+    });
+    save();
+    renderDiveSpaceDetail();
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteBlockPhoto(secId, picId) {
+  const sp = getActiveDiveSpace();
+  const sec = sp?.sections.find(s => s.id === secId);
+  if (!sec || !Array.isArray(sec.photos)) return;
+  pushUndo();
+  sec.photos = sec.photos.filter(p => p.id !== picId);
+  save();
   renderDiveSpaceDetail();
 }
 
-function setDiveDonePage(p) {
-  diveDonePage = p;
-  renderDiveSpaceDetail();
+function renderBulletsHtml(secId, subId, bullets) {
+  if (!Array.isArray(bullets) || !bullets.length) return '';
+  const subArg = subId ? `'${subId}'` : 'null';
+  return bullets.map(b => `
+    <div class="tick-bullet-row">
+      <button type="button" class="tick-box-btn ${b.ticked ? 'ticked' : ''}" onclick="toggleTickBullet('${secId}', ${subArg}, '${b.id}')">${b.ticked ? '✓' : ''}</button>
+      <div class="tick-bullet-text" data-bul-id="${b.id}" contenteditable="true" onkeydown="handleTickBulletKeydown(event, '${secId}', ${subArg}, '${b.id}', this)" onblur="editTickBulletText('${secId}', ${subArg}, '${b.id}', this.innerHTML)">${b.text || ''}</div>
+    </div>
+  `).join('');
+}
+
+function renderPlainBulletsHtml(secId, plainBullets) {
+  if (!Array.isArray(plainBullets) || !plainBullets.length) return '';
+  return plainBullets.map(b => `
+    <div class="tick-bullet-row">
+      <span class="plain-bullet-dot">•</span>
+      <div class="tick-bullet-text" data-bul-id="${b.id}" contenteditable="true" onkeydown="handlePlainBulletKeydown(event, '${secId}', '${b.id}', this)" onblur="editPlainBulletText('${secId}', '${b.id}', this.innerHTML)">${b.text || ''}</div>
+    </div>
+  `).join('');
+}
+
+function renderNotesHtml(secId, notes) {
+  if (!Array.isArray(notes) || !notes.length) return '';
+  const chipsHtml = notes.map(n => `
+    <button type="button" class="sticky-note-chip" onclick="toggleSectionNoteExpanded('${secId}', '${n.id}')" title="Toggle note">📝</button>
+  `).join('');
+
+  const expandedCardsHtml = notes.filter(n => n.expanded).map(n => {
+    const isEditing = editingNoteId === n.id;
+    const isMenuOpen = openNoteMenuId === n.id;
+    return `
+      <div class="dive-notepad-box">
+        <div class="dive-notepad-top">
+          <div class="note-more-wrap" onclick="event.stopPropagation()">
+            <button type="button" class="note-more-btn" onclick="toggleNoteDropdown('${n.id}', event)" title="Note options">⋮</button>
+            <div class="note-more-menu ${isMenuOpen ? 'open' : ''}">
+              <button type="button" class="sec-dropdown-item danger" onclick="deleteSectionNote('${secId}', '${n.id}')">× Delete Note</button>
+            </div>
+          </div>
+        </div>
+        <div class="dive-notepad-area ${isEditing ? 'editing' : ''}" data-note-area="${n.id}" contenteditable="${isEditing ? 'true' : 'false'}" onclick="${isEditing ? '' : `startEditingNote('${n.id}')`}" onblur="editSectionNoteText('${secId}', '${n.id}', this.innerHTML)">${n.text || ''}</div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="sticky-note-chip-row">${chipsHtml}</div>
+    ${expandedCardsHtml}
+  `;
 }
 
 function renderDiveSpaceDetail() {
@@ -2490,36 +3702,84 @@ function renderDiveSpaceDetail() {
   }
 
   document.getElementById('diveSpaceDetailTitle').textContent = sp.name;
-  const tbcBox = document.getElementById('diveTbcList');
-  const doneBox = document.getElementById('diveCompletedList');
+  const container = document.getElementById('diveSectionsContainer');
+  if (!sp.sections.length) {
+    container.innerHTML = '';
+    return;
+  }
 
-  const tbcTotalPages = Math.max(1, Math.ceil(sp.tbc.length / SUBPAGE_SIZE));
-  if (diveTbcPage > tbcTotalPages) diveTbcPage = tbcTotalPages;
-  const tbcStart = (diveTbcPage - 1) * SUBPAGE_SIZE;
-  const tbcSlice = sp.tbc.slice(tbcStart, tbcStart + SUBPAGE_SIZE);
+  container.innerHTML = sp.sections.map((sec, sIdx) => {
+    const isCollapsed = sec.collapsed !== false;
+    const tint = getSectionTint(sIdx);
+    const isMenuOpen = openSectionMenuId === sec.id;
+    const isTitleEditing = editingSectionTitleId === sec.id;
 
-  tbcBox.innerHTML = tbcSlice.map(item => `
-    <div class="dive-item-row">
-      <span class="status-btn" onclick="completeDiveTbcItem('${item.id}')"></span>
-      <div class="dive-item-text" contenteditable="true" onblur="editDiveTbcItem('${item.id}', this.innerHTML)">${item.text}</div>
-      <button type="button" class="del-date" style="float:none;" onclick="deleteDiveTbcItem('${item.id}')" title="Delete">×</button>
-    </div>
-  `).join('');
-  renderInlinePager('diveTbcPager', diveTbcPage, sp.tbc.length, SUBPAGE_SIZE, 'setDiveTbcPage');
+    if (isCollapsed) {
+      return `
+        <div class="dive-section-card" style="background:${tint};">
+          <div class="dive-section-header" onclick="handleSectionBarClick('${sec.id}')">
+            <span class="section-fold-icon">›</span>
+            <div class="dive-section-title" data-sec-title="${sec.id}">${escapeHtml(sec.title)}</div>
+          </div>
+        </div>
+      `;
+    }
 
-  const doneTotalPages = Math.max(1, Math.ceil(sp.completed.length / SUBPAGE_SIZE));
-  if (diveDonePage > doneTotalPages) diveDonePage = doneTotalPages;
-  const doneStart = (diveDonePage - 1) * SUBPAGE_SIZE;
-  const doneSlice = sp.completed.slice(doneStart, doneStart + SUBPAGE_SIZE);
+    const subsHtml = (sec.subsections || []).map(sub => {
+      const subCollapsed = sub.collapsed !== false;
+      const subTitleEditing = editingSubsectionTitleId === sub.id;
+      return `
+        <div class="dive-subsection-box">
+          <div class="dive-subsection-head" onclick="toggleSubsectionCollapse('${sec.id}', '${sub.id}')">
+            <span class="section-fold-icon" style="width:18px; height:18px; font-size:12px;">${subCollapsed ? '›' : '▾'}</span>
+            <div class="dive-subsection-title ${subTitleEditing ? 'editing' : ''}" data-subsec-title="${sub.id}" contenteditable="${subTitleEditing ? 'true' : 'false'}" onclick="${subTitleEditing ? 'event.stopPropagation()' : ''}" ondblclick="startRenameDiveSubsection('${sec.id}', '${sub.id}', event)" onkeydown="if(event.key==='Enter'){ event.preventDefault(); this.blur(); }" onblur="renameDiveSubsection('${sec.id}', '${sub.id}', this.innerText)">${escapeHtml(sub.title)}</div>
+            <button type="button" class="mini-action-btn" onclick="event.stopPropagation(); addTickBullet('${sec.id}', '${sub.id}', true)">+</button>
+            <button type="button" class="del-date" style="float:none;" onclick="event.stopPropagation(); deleteDiveSubsection('${sec.id}', '${sub.id}')" title="Remove subsection">×</button>
+          </div>
+          ${subCollapsed ? '' : `<div class="dive-subsection-body">${renderBulletsHtml(sec.id, sub.id, sub.bullets)}</div>`}
+        </div>
+      `;
+    }).join('');
 
-  doneBox.innerHTML = doneSlice.map(item => `
-    <div class="dive-item-row">
-      <span class="dive-done-badge">✓</span>
-      <div class="dive-item-text" contenteditable="true" onblur="editDiveCompletedItem('${item.id}', this.innerHTML)">${item.text}</div>
-      <button type="button" class="del-date" style="float:none;" onclick="deleteDiveCompletedItem('${item.id}')" title="Remove">×</button>
-    </div>
-  `).join('');
-  renderInlinePager('diveDonePager', diveDonePage, sp.completed.length, SUBPAGE_SIZE, 'setDiveDonePage');
+    const photosHtml = (sec.photos || []).length ? `
+      <div class="block-photos-strip">
+        ${sec.photos.map(p => `
+          <div class="block-photo-thumb-wrap">
+            <img src="${p.src}" alt="" class="block-photo-img" onclick="openPhotoLightbox('${p.src}')" title="View image">
+            <button type="button" class="del-date" style="position:absolute; top:-5px; right:-5px; background:var(--surface); border-radius:999px; padding:0 5px; line-height:16px; font-size:13px;" onclick="deleteBlockPhoto('${sec.id}', '${p.id}')" title="Remove">×</button>
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    return `
+      <div class="dive-section-card" style="background:${tint};">
+        <div class="dive-section-header" onclick="handleSectionBarClick('${sec.id}')">
+          <span class="section-fold-icon">▾</span>
+          <div class="dive-section-title ${isTitleEditing ? 'editing' : ''}" data-sec-title="${sec.id}" contenteditable="${isTitleEditing ? 'true' : 'false'}" onclick="${isTitleEditing ? 'event.stopPropagation()' : ''}" onkeydown="if(event.key==='Enter'){ event.preventDefault(); this.blur(); }" onblur="commitRenameDiveSection('${sec.id}', this.innerText)">${escapeHtml(sec.title)}</div>
+          <div class="sec-menu-wrap" onclick="event.stopPropagation()">
+            <button type="button" class="sec-menu-trigger" onclick="toggleSectionDropdown('${sec.id}', event)" title="Section options">⋯</button>
+            <div class="sec-dropdown-menu ${isMenuOpen ? 'open' : ''}">
+              <button type="button" class="sec-dropdown-item" onclick="triggerRenameDiveSection('${sec.id}', event)">Rename Heading</button>
+              <button type="button" class="sec-dropdown-item" onclick="addTickBullet('${sec.id}', null, true)">+ Checklist</button>
+              <button type="button" class="sec-dropdown-item" onclick="addPlainBullet('${sec.id}', true)">+ Bullet</button>
+              <button type="button" class="sec-dropdown-item" onclick="addDiveSubsection('${sec.id}')">+ Subsection</button>
+              <button type="button" class="sec-dropdown-item" onclick="addSectionNote('${sec.id}')">Add Note</button>
+              <button type="button" class="sec-dropdown-item" onclick="triggerBlockPhoto('${sec.id}')">Add Image</button>
+              <button type="button" class="sec-dropdown-item danger" onclick="deleteDiveSection('${sec.id}')">Delete Section</button>
+            </div>
+          </div>
+        </div>
+        <div class="dive-section-body">
+          ${renderBulletsHtml(sec.id, null, sec.bullets)}
+          ${renderPlainBulletsHtml(sec.id, sec.plainBullets)}
+          ${subsHtml}
+          ${renderNotesHtml(sec.id, sec.notes)}
+          ${photosHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 /* Title (Editable ONLY from Customize Matrix menu) */
@@ -2570,7 +3830,7 @@ function changeMatrixPage(delta) {
   const totalPages = Math.max(1, pageSlices.length);
   matrixPage = Math.min(totalPages, Math.max(1, matrixPage + delta));
   renderTableOnly();
-  window.scrollTo(0, 0);
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 }
 
 function addColumn() {
@@ -2618,12 +3878,6 @@ function updateNotesColor(val) {
   renderTableOnly();
 }
 
-/* 4-State Status Box for Matrix:
-   0 = Unchecked
-   1 = Green ✓ (Completed)
-   2 = Red ✗ (Incomplete)
-   3 = Orange — (Not Relevant / Ignored in productivity averages)
-*/
 function cycleStatus(s) { return ((s || 0) + 1) % 4; }
 function statusSymbol(s) { return s === 1 ? '✓' : s === 2 ? '✗' : s === 3 ? '—' : ''; }
 function statusClass(s) { return s === 1 ? 'status-done' : s === 2 ? 'status-cross' : s === 3 ? 'status-orange' : ''; }
@@ -2633,9 +3887,6 @@ function getCell(date, colId) {
   if (!state.records[key]) state.records[key] = { status: 0, time: '', subs: [] };
   return state.records[key];
 }
-
-function formatText(cmd, val = null) { document.execCommand(cmd, false, val); }
-function insertSticker(emoji) { document.execCommand('insertText', false, ' ' + emoji + ' '); }
 
 function renderSidebarControls() {
   document.getElementById('titleInput').value = state.title;
@@ -2701,7 +3952,6 @@ function buildDateRowElement(date) {
   return tr;
 }
 
-/* Dynamically fills the visible iPhone / Mac screen before breaking to the next page */
 function renderTableOnly() {
   document.getElementById('pageTitle').innerText = state.title;
   document.title = state.title;
@@ -2730,8 +3980,8 @@ function renderTableOnly() {
   });
 
   const tbodyTop = tbody.getBoundingClientRect().top;
-  const bottomReserve = 64;
-  const maxBodyHeight = Math.max(240, window.innerHeight - tbodyTop - bottomReserve);
+  const bottomReserve = window.innerWidth <= 768 ? 72 : 56;
+  const maxBodyHeight = Math.max(260, window.innerHeight - tbodyTop - bottomReserve);
 
   const slices = [];
   let startIdx = 0;
@@ -2768,7 +4018,7 @@ function renderTableOnly() {
 function render() {
   applyTheme();
   renderSidebarControls();
-  renderGoalsSidebar();
+  renderGoalsOverviewPage();
   renderGoalsOverview();
   renderTableOnly();
   renderDashboard();
@@ -2833,7 +4083,6 @@ function delSub(d, c, i) {
   renderTableOnly();
 }
 
-/* Productivity Calculation (Completely disregards status === 3 Orange tasks) */
 function calcDayScore(date) {
   let total = 0, done = 0;
   state.columns.forEach(col => {
@@ -2860,34 +4109,58 @@ function shiftMonth(delta) {
   renderDashboard();
 }
 
+function shiftWeek(deltaWeeks) {
+  const next = new Date(weekAnchorMonday);
+  next.setDate(next.getDate() + (deltaWeeks * 7));
+  weekAnchorMonday = next;
+  renderDashboard();
+}
+
 function renderDashboard() {
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
   const todayScore = calcDayScore(TODAY);
   const todayDisplay = todayScore !== null ? todayScore : 0;
   document.getElementById('todayChart').innerHTML = `
     <div class="bar-row">
-      <span class="bar-label">${formatDateDMY(TODAY)}</span>
+      <span class="bar-label" style="width:76px;">${formatDateDMY(TODAY)}</span>
       <div class="bar-track"><div class="bar-fill" style="width:${todayDisplay}%"></div></div>
       <strong>${todayScore !== null ? todayScore + '%' : '0%'}</strong>
     </div>`;
 
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const buckets = Array.from({ length: 7 }, () => []);
-  state.dates.forEach(d => {
-    const score = calcDayScore(d);
-    if (score !== null) {
-      buckets[new Date(d).getDay()].push(score);
-    }
-  });
-  document.getElementById('weekChart').innerHTML = [1,2,3,4,5,6,0].map(dayIdx => {
-    const arr = buckets[dayIdx];
-    const avg = arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
-    return `<div class="bar-row"><span class="bar-label">${days[dayIdx]}</span><div class="bar-track"><div class="bar-fill" style="width:${avg}%"></div></div><span>${avg}%</span></div>`;
+  const weekDays = [];
+  for (let i = 0; i < 7; i++) {
+    const dt = new Date(weekAnchorMonday);
+    dt.setDate(dt.getDate() + i);
+    const iso = isoFromDateObj(dt);
+    weekDays.push({
+      label: MON_SUN_LABELS[i],
+      fullDate: formatDateDMY(iso),
+      score: calcDayScore(iso)
+    });
+  }
+  const endSun = new Date(weekAnchorMonday);
+  endSun.setDate(endSun.getDate() + 6);
+  const validScores = weekDays.map(d => d.score).filter(s => s !== null);
+  const weekAvg = validScores.length
+    ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)
+    : 0;
+
+  document.getElementById('weeklyRangeLabel').innerText =
+    `${formatDateDMShort(isoFromDateObj(weekAnchorMonday))}–${formatDateDMShort(isoFromDateObj(endSun))} · ${weekAvg}%`;
+
+  document.getElementById('weekChart').innerHTML = weekDays.map(d => {
+    const pct = d.score !== null ? d.score : 0;
+    const tip = `${d.label} (${d.fullDate})${d.score !== null ? ': ' + d.score + '%' : ': 0%'}`;
+    return `
+      <div class="bar-row" title="${tip}">
+        <span class="bar-label">${d.label}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <strong>${pct}%</strong>
+      </div>`;
   }).join('');
 
-  // 4-Tier Monthly Overview
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   document.getElementById('monthLabel').innerText = `${monthNames[viewMonth]} ${viewYear}`;
-
   const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   let mHtml = dows.map(w => `<div class="m-dow">${w}</div>`).join('');
 
@@ -2901,9 +4174,9 @@ function renderDashboard() {
     const sc = calcDayScore(dStr);
     let cls = '';
     if (sc !== null) {
-      if (sc === 0) cls = 'lvl-red';
-      else if (sc < 50) cls = 'lvl-orange';
-      else if (sc < 100) cls = 'lvl-green-light';
+      if (sc <= 20) cls = 'lvl-red';
+      else if (sc <= 50) cls = 'lvl-orange';
+      else if (sc <= 80) cls = 'lvl-green-light';
       else cls = 'lvl-green-dark';
     }
     mHtml += `<div class="m-day ${cls}" title="${formatDateDMY(dStr)}${sc !== null ? ': ' + sc + '%' : ''}">${day}</div>`;
@@ -2912,6 +4185,7 @@ function renderDashboard() {
 }
 
 window.addEventListener('resize', () => {
+  hideSelectionBar();
   if (currentView === 'matrix') renderTableOnly();
 });
 
