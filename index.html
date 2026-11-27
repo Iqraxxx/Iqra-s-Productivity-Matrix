@@ -7,8 +7,8 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" id="metaIosStatusBar" content="default">
-<meta name="theme-color" id="metaThemeColor" content="#ffffff">
+<meta name="apple-mobile-web-app-status-bar-style" id="metaIosStatusBar" content="black-translucent">
+<meta name="theme-color" id="metaThemeColor" content="transparent">
 <style>
   :root {
     --bg: #ffffff;
@@ -65,18 +65,6 @@
     padding: 0;
     min-height: 100%;
     transition: background 0.2s ease, color 0.2s ease;
-  }
-
-  .ios-top-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: calc(env(safe-area-inset-top, 0px) + 6px);
-    background: var(--bg);
-    z-index: 140;
-    pointer-events: none;
-    transition: background 0.2s ease;
   }
 
   body {
@@ -405,7 +393,7 @@
     flex: 1;
     min-height: 100vh;
     min-height: 100dvh;
-    padding: calc(16px + env(safe-area-inset-top, 0px)) 28px 84px;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 28px 84px;
     overflow-x: auto;
     min-width: 0;
     background: var(--bg);
@@ -971,7 +959,15 @@
   }
   .tl-time-badge { font-size: 11px; font-weight: 600; opacity: 0.78; }
 
-  .timeline-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .timeline-scroll-wrap {
+    max-height: 440px;
+    overflow-y: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .timeline-table { width: 100%; border-collapse: collapse; margin-top: 0; }
   .timeline-table th, .timeline-table td {
     min-width: 0;
     border: 1px solid var(--border);
@@ -985,6 +981,9 @@
     text-transform: uppercase;
     letter-spacing: 0.4px;
     color: var(--muted);
+    position: sticky;
+    top: 0;
+    z-index: 2;
   }
   .tl-crossed { text-decoration: line-through; color: #f87171; opacity: 0.75; }
   .tl-done { text-decoration: line-through; opacity: 0.6; }
@@ -1568,7 +1567,7 @@
       transition: transform 0.25s ease;
     }
     .sidebar.closed { margin-left: 0; transform: translateX(-100%); }
-    .main { padding: calc(14px + env(safe-area-inset-top, 0px)) 12px 84px; width: 100%; }
+    .main { padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 84px; width: 100%; }
     .page-title { font-size: 20px; margin-bottom: 12px; }
     th, td { min-width: 180px; padding: 8px; }
     .date-cell { min-width: 128px; width: 128px; font-size: 12px; position: sticky; left: 0; z-index: 3; }
@@ -1579,7 +1578,6 @@
 </head>
 <body>
 
-<div class="ios-top-backdrop" aria-hidden="true"></div>
 <div class="edge-swipe-zone" id="edgeSwipeZone"></div>
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
@@ -1828,7 +1826,7 @@
       </div>
     </div>
 
-    <div style="overflow-x:auto;">
+    <div class="timeline-scroll-wrap">
       <table class="timeline-table">
         <thead>
           <tr>
@@ -1842,7 +1840,6 @@
         <tbody id="timelineBody"></tbody>
       </table>
     </div>
-    <div class="subpage-pager" id="timelinePager"></div>
   </section>
 
   <!-- View 4A: Your Long Term Goals List Page -->
@@ -2003,13 +2000,12 @@ let editingNoteId = null;
 let goalTasksCollapsed = true;
 
 let dymPage = 1;
-let timelinePage = 1;
 let diveSpacesPage = 1;
 
 let currentView = 'matrix';
 let activeGoalId = null;
 let activeDiveSpaceId = null;
-let matrixPage = 1;
+let matrixPage = null;
 let pageSlices = [];
 
 const DEFAULT_DATA = {
@@ -2340,10 +2336,10 @@ function applyTheme() {
   const metaColor = document.getElementById('metaThemeColor');
   const metaIosBar = document.getElementById('metaIosStatusBar');
   if (metaColor) {
-    metaColor.setAttribute('content', t === 'dark' ? '#090d16' : t === 'yellow' ? '#fef9c3' : '#ffffff');
+    metaColor.setAttribute('content', 'transparent');
   }
   if (metaIosBar) {
-    metaIosBar.setAttribute('content', t === 'dark' ? 'black-translucent' : 'default');
+    metaIosBar.setAttribute('content', 'black-translucent');
   }
   ['white', 'yellow', 'dark'].forEach(name => {
     const btn = document.getElementById('theme-' + name);
@@ -2468,6 +2464,7 @@ function openSubpage(viewName, extraId = null) {
   currentView = viewName;
   if (viewName === 'goalPlan' && extraId) activeGoalId = extraId;
   if (viewName === 'diveSpaceDetail' && extraId) activeDiveSpaceId = extraId;
+  if (viewName === 'matrix') matrixPage = null;
 
   document.getElementById('matrixView').style.display = (viewName === 'matrix') ? 'block' : 'none';
   document.getElementById('declutterView').classList.toggle('active', viewName === 'declutter');
@@ -2494,12 +2491,13 @@ function openSubpage(viewName, extraId = null) {
 function updateFloatingPaginationVisibility() {
   const totalPages = Math.max(1, pageSlices.length);
   const pagBar = document.getElementById('matrixPagination');
+  const activePage = matrixPage || totalPages;
 
   if (currentView === 'matrix' && totalPages > 1) {
     pagBar.style.display = 'inline-flex';
-    document.getElementById('pageIndicator').innerText = `${matrixPage} / ${totalPages}`;
-    document.getElementById('prevPageBtn').disabled = (matrixPage <= 1);
-    document.getElementById('nextPageBtn').disabled = (matrixPage >= totalPages);
+    document.getElementById('pageIndicator').innerText = `${activePage} / ${totalPages}`;
+    document.getElementById('prevPageBtn').disabled = (activePage <= 1);
+    document.getElementById('nextPageBtn').disabled = (activePage >= totalPages);
   } else {
     pagBar.style.display = 'none';
   }
@@ -2852,27 +2850,16 @@ function renderTimelineCalendar() {
   }).join('');
 }
 
-function setTimelinePage(p) {
-  timelinePage = p;
-  renderTimelineTable();
-}
-
 function renderTimelineTable() {
   const tbody = document.getElementById('timelineBody');
   state.timeline.sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''));
 
   if (!state.timeline.length) {
     tbody.innerHTML = '';
-    renderInlinePager('timelinePager', 1, 0, SUBPAGE_SIZE, 'setTimelinePage');
     return;
   }
 
-  const totalPages = Math.max(1, Math.ceil(state.timeline.length / SUBPAGE_SIZE));
-  if (timelinePage > totalPages) timelinePage = totalPages;
-  const start = (timelinePage - 1) * SUBPAGE_SIZE;
-  const slice = state.timeline.slice(start, start + SUBPAGE_SIZE);
-
-  tbody.innerHTML = slice.map(item => {
+  tbody.innerHTML = state.timeline.map(item => {
     const sym = item.status === 1 ? '✓' : item.status === 2 ? '✗' : '';
     const cls = item.status === 1 ? 'status-done' : item.status === 2 ? 'status-cross' : '';
     const txtCls = item.status === 1 ? 'tl-done' : item.status === 2 ? 'tl-crossed' : '';
@@ -2893,8 +2880,6 @@ function renderTimelineTable() {
       </tr>
     `;
   }).join('');
-
-  renderInlinePager('timelinePager', timelinePage, state.timeline.length, SUBPAGE_SIZE, 'setTimelinePage');
 }
 
 function renderTimelineSection() {
@@ -3808,7 +3793,7 @@ function addDateRow() {
     openSubpage('matrix', null);
     const idx = state.dates.indexOf(d);
     const targetPageIdx = pageSlices.findIndex(([s, e]) => idx >= s && idx < e);
-    if (targetPageIdx !== -1 && (targetPageIdx + 1) !== matrixPage) {
+    if (targetPageIdx !== -1) {
       matrixPage = targetPageIdx + 1;
       renderTableOnly();
     }
@@ -3828,7 +3813,8 @@ function removeDateRow(d) {
 
 function changeMatrixPage(delta) {
   const totalPages = Math.max(1, pageSlices.length);
-  matrixPage = Math.min(totalPages, Math.max(1, matrixPage + delta));
+  const current = matrixPage || totalPages;
+  matrixPage = Math.min(totalPages, Math.max(1, current + delta));
   renderTableOnly();
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 }
@@ -4002,7 +3988,9 @@ function renderTableOnly() {
   }
 
   pageSlices = slices.length ? slices : [[0, 0]];
-  if (matrixPage > pageSlices.length) matrixPage = pageSlices.length;
+  if (matrixPage === null || matrixPage > pageSlices.length) {
+    matrixPage = pageSlices.length;
+  }
   if (matrixPage < 1) matrixPage = 1;
 
   const [visStart, visEnd] = pageSlices[matrixPage - 1];
